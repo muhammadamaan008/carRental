@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:rental_app/screens/login.dart';
 import 'package:rental_app/screens/splash.dart';
 import 'package:sizer/sizer.dart';
 
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         getPages: [
           GetPage(name: '/', page: () => const Splash(), transition: Transition.zoom),
-          // GetPage(name: '/second', page: () => Second()),
+          GetPage(name: '/login', page: () => const Login()),
           // GetPage(
           //   name: '/third',
           //   page: () => Third(),
