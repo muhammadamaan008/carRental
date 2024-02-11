@@ -3,7 +3,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_app/service/auth_view_model.dart';
-import 'package:rental_app/service/snackbar.dart';
+import 'package:rental_app/service/snack_bar.dart';
 import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/widgets/app_bar.dart';
 import 'package:rental_app/widgets/text_button.dart';
@@ -27,7 +27,7 @@ class _SignUpState extends State<SignUp> {
   final nameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   SingingCharacter? _character = SingingCharacter.buyer;
-  final Widget Spacing = SizedBox(
+  final Widget spacing = SizedBox(
     height: 2.h,
   );
 
@@ -69,7 +69,7 @@ class _SignUpState extends State<SignUp> {
                   Image.asset(
                     'assets/images/white.png',
                   ),
-                  Spacing,
+                  spacing,
                   Form(
                       key: formKey,
                       child: Column(
@@ -86,27 +86,27 @@ class _SignUpState extends State<SignUp> {
                                 const Color.fromARGB(255, 219, 204, 204),
                             textColor: Colors.white,
                           ),
-                          Spacing,
+                          spacing,
                           CustomTextFormField(
                             fieldController: emailController,
                             isTextObscured: false,
                             cursorColor: Colors.white,
                             prefixIcon: const Icon(Icons.email),
                             prefixIconColor: const Color(0xFF46f598),
-                            onValidate: authModel.emailValidtaor,
+                            onValidate: authModel.emailValidator,
                             hintText: 'Email',
                             hintTextColor:
                                 const Color.fromARGB(255, 219, 204, 204),
                             textColor: Colors.white,
                           ),
-                          Spacing,
+                          spacing,
                           CustomTextFormField(
                             fieldController: passwordController,
                             isTextObscured: !_passwordVisible,
                             cursorColor: Colors.white,
                             prefixIcon: const Icon(Icons.lock),
                             prefixIconColor: const Color(0xFF46f598),
-                            onValidate: authModel.passwordValidtaor,
+                            onValidate: authModel.passwordValidator,
                             hintText: 'Password',
                             hintTextColor:
                                 const Color.fromARGB(255, 219, 204, 204),
@@ -167,7 +167,7 @@ class _SignUpState extends State<SignUp> {
                               ),
                             ],
                           ),
-                          Spacing,
+                          spacing,
                           SizedBox(
                             width: 100.w,
                             child: Consumer<AuthModel>(
@@ -201,7 +201,7 @@ class _SignUpState extends State<SignUp> {
                           )
                         ],
                       )),
-                  Spacing,
+                  spacing,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

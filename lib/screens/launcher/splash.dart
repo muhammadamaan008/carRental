@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
+import 'package:provider/provider.dart';
 import 'package:rental_app/utils/routes.dart';
 import 'package:rental_app/widgets/app_bar.dart';
 import 'package:rental_app/widgets/text_button.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../service/auth_view_model.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -19,6 +22,7 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
+    Provider.of<AuthModel>(context, listen: false).checkLoginStatus();
     // Timer(const Duration(seconds: 3), () => Get.offNamed(Routes.login));
   }
 

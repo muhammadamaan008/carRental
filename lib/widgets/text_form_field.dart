@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
 
 class CustomTextFormField extends StatelessWidget {
-  final TextEditingController fieldController;
+  final TextEditingController? fieldController;
   final bool isTextObscured;
-  final Color cursorColor;
-  final Widget prefixIcon;
-  final Color prefixIconColor;
+  final Color? cursorColor;
+  final Widget? prefixIcon;
+  final Color? prefixIconColor;
   final String? Function(String?) onValidate;
-  final String hintText;
-  final Color hintTextColor;
+  final String? hintText;
+  final Color? hintTextColor;
   final Widget? suffixIcon;
   final Color? suffixIconColor;
-  final Color textColor;
+  final Color? textColor;
   final Color? underlineColor;
-  final bool isFocused;
+  final bool? isFocused;
 
   const CustomTextFormField(
       {super.key,
-      required this.fieldController,
-      required this.isTextObscured,
-      required this.cursorColor,
-      required this.prefixIcon,
-      required this.prefixIconColor,
+      this.fieldController,
+      this.isTextObscured = false,
+      this.cursorColor,
+      this.prefixIcon,
+      this.prefixIconColor,
       required this.onValidate,
-      required this.hintText,
-      required this.hintTextColor,
+      this.hintText,
+      this.hintTextColor,
       this.suffixIcon,
-      required this.textColor,
+      this.textColor,
       this.underlineColor,
       this.suffixIconColor,
       this.isFocused = false});
@@ -40,12 +40,18 @@ class CustomTextFormField extends StatelessWidget {
       style: TextStyle(color: textColor),
       decoration: InputDecoration(
           prefixIcon: IconTheme(
-            data: IconThemeData(
-              color: isFocused ? prefixIconColor : Colors.grey,
+            data: const IconThemeData(
+              color: Colors.grey,
             ),
-            child: prefixIcon,
+            child: prefixIcon ?? const SizedBox(),
           ),
           hintText: hintText,
+          // labelText: 'Enter Name',
+          // labelStyle: TextStyle(
+          //   color: AppConstants.mainColor,
+          //   fontSize: 15.sp,
+          //   height: -0.5.sp
+          // ),
           hintStyle: TextStyle(color: hintTextColor),
           prefixIconColor: prefixIconColor,
           suffixIcon: suffixIcon,

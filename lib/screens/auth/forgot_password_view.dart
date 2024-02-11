@@ -67,7 +67,7 @@ class ForgotPassword extends StatelessWidget {
                           cursorColor: Colors.white,
                           prefixIcon: const Icon(Icons.lock_open),
                           prefixIconColor: Colors.grey,
-                          onValidate: authModel.emailValidtaor,
+                          onValidate: authModel.emailValidator,
                           hintText: 'Enter your email',
                           hintTextColor: Colors.white,
                           textColor: Colors.white,

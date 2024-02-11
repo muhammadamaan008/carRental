@@ -3,7 +3,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_app/service/auth_view_model.dart';
-import 'package:rental_app/service/snackbar.dart';
+import 'package:rental_app/service/snack_bar.dart';
 import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/utils/routes.dart';
 import 'package:rental_app/widgets/app_bar.dart';
@@ -24,9 +24,9 @@ class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  final Widget Spacing = SizedBox(
-      height: 2.h,
-    );
+  final Widget spacing = SizedBox(
+    height: 2.h,
+  );
 
   @override
   void initState() {
@@ -44,8 +44,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    
-
     return SafeArea(
       child: GestureDetector(
         onTap: () {
@@ -53,11 +51,11 @@ class _LoginState extends State<Login> {
         },
         child: Scaffold(
           appBar: const CustomAppBar(
-          title: 'Cardez',
-          centerTitle: false,
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
-        ),
+            title: 'Cardez',
+            centerTitle: false,
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.white,
+          ),
           backgroundColor: Colors.black,
           body: SingleChildScrollView(
             child: Padding(
@@ -67,10 +65,11 @@ class _LoginState extends State<Login> {
                   Image.asset(
                     'assets/images/white.png',
                   ),
-                  Spacing,
+                  spacing,
                   Form(
                       key: formKey,
-                      child: Column(
+                      child:
+                      Column(
                         children: [
                           CustomTextFormField(
                             fieldController: emailController,
@@ -78,20 +77,20 @@ class _LoginState extends State<Login> {
                             cursorColor: Colors.white,
                             prefixIcon: const Icon(Icons.email),
                             prefixIconColor: const Color(0xFF46f598),
-                            onValidate: authModel.emailValidtaor,
+                            onValidate: authModel.emailValidator,
                             hintText: 'Email',
                             hintTextColor:
                                 const Color.fromARGB(255, 219, 204, 204),
                             textColor: Colors.white,
                           ),
-                          Spacing,
+                          spacing,
                           CustomTextFormField(
                             fieldController: passwordController,
                             isTextObscured: !_passwordVisible,
                             cursorColor: Colors.white,
                             prefixIcon: const Icon(Icons.lock),
                             prefixIconColor: const Color(0xFF46f598),
-                            onValidate: authModel.passwordValidtaor,
+                            onValidate: authModel.passwordValidator,
                             hintText: 'Password',
                             hintTextColor:
                                 const Color.fromARGB(255, 219, 204, 204),
@@ -111,7 +110,7 @@ class _LoginState extends State<Login> {
                             suffixIconColor:
                                 const Color.fromARGB(255, 219, 204, 204),
                           ),
-                          Spacing,
+                          spacing,
                           SizedBox(
                             width: 100.w,
                             child: Consumer<AuthModel>(
@@ -124,11 +123,7 @@ class _LoginState extends State<Login> {
                                     if (formKey.currentState!.validate()) {
                                       CustomSnackBar.showSnackBar('Please wait',
                                           'We are checking details.');
-                                      authModel.
-                                      
-                                      
-                                      
-                                      loginUser(
+                                      authModel.loginUser(
                                           emailController.value.text.toString(),
                                           passwordController.value.text
                                               .toString());
@@ -138,7 +133,7 @@ class _LoginState extends State<Login> {
                               },
                             ),
                           ),
-                          Spacing,
+                          spacing,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -158,11 +153,12 @@ class _LoginState extends State<Login> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12.sp,
                                         decoration: TextDecoration.underline,
-                                        decorationColor: const Color(0xFF46f598))),
+                                        decorationColor:
+                                            const Color(0xFF46f598))),
                               )
                             ],
                           ),
-                          Spacing,
+                          spacing,
                           InkWell(
                             onTap: () {
                               Get.toNamed(Routes.forgotPassword);

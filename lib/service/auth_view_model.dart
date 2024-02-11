@@ -4,25 +4,58 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:rental_app/service/snackbar.dart';
+import 'package:rental_app/service/snack_bar.dart';
 import 'package:rental_app/utils/routes.dart';
 
 class AuthModel extends ChangeNotifier {
-  FirebaseAuth auth = FirebaseAuth.instance;
-  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   bool loading = false;
+  late bool isUserBuyer;
+  late String? displayName, email, photoUrl;
 
-  //Sign Up
+  AuthModel() {
+    authoriseBuyer();
+    getCredentials();
+  }
+
+  // AUTHORISATION
+  Future<void> authoriseBuyer() async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('userId', isEqualTo: _auth.currentUser!.uid.toString())
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var userType = querySnapshot.docs[0]['userType'];
+        isUserBuyer = userType == 'buyer';
+        return;
+      } else {
+        CustomSnackBar.showSnackBar('Error',
+            'No documents found with userId: ${_auth.currentUser!.uid.toString()}');
+        isUserBuyer = false;
+        return;
+      }
+    } catch (error) {
+      CustomSnackBar.showSnackBar('Error', 'Error retrieving document: $error');
+      isUserBuyer = false;
+      return;
+    }
+  }
+
+  // SIGN UP
   Future<void> createUserWithEmailAndPassword(
       String email, String password, String userType, String name) async {
     loading = true;
     notifyListeners();
 
-    await auth
+    await _auth
         .createUserWithEmailAndPassword(email: email, password: password)
         .then((value) async {
+      await _auth.currentUser!.updateDisplayName(name);
       await storeUserInFireStore(
-          auth.currentUser!.uid.toString(), userType, name, email);
+          _auth.currentUser!.uid.toString(), userType, name, email);
     }).onError((error, stackTrace) {
       loading = false;
       notifyListeners();
@@ -56,16 +89,10 @@ class AuthModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await auth.signInWithEmailAndPassword(email: email, password: password);
-      bool buyerExist = await isBuyer(auth.currentUser!.uid.toString());
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
       loading = false;
       notifyListeners();
-
-      if (buyerExist) {
-        Get.toNamed(Routes.buyerHomeView);
-      } else {
-        Get.toNamed(Routes.sellerHomeView);
-      }
+      Get.offAllNamed(Routes.home);
     } catch (error) {
       if (error is FirebaseAuthException) {
         // Handle FirebaseAuthException
@@ -91,34 +118,13 @@ class AuthModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> isBuyer(String userId) async {
-    try {
-      var querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('userId', isEqualTo: userId)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        var userType = querySnapshot.docs[0]['userType'];
-        return userType == 'buyer';
-      } else {
-        CustomSnackBar.showSnackBar(
-            'Error', 'No documents found with userId: $userId');
-        return false;
-      }
-    } catch (error) {
-      CustomSnackBar.showSnackBar('Error', 'Error retrieving document: $error');
-      return false;
-    }
-  }
-
   // Forgot Password
   Future<void> sendEmail(String email) async {
     try {
       bool userExists = await isUserExists(email);
 
       if (userExists) {
-        await auth.sendPasswordResetEmail(email: email);
+        await _auth.sendPasswordResetEmail(email: email);
         CustomSnackBar.showSnackBar(
             "Email Sent", "Reset Password & Login Again");
         Get.offNamed(Routes.login);
@@ -133,11 +139,10 @@ class AuthModel extends ChangeNotifier {
 
   Future<bool> isUserExists(String email) async {
     try {
-      var querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .where('email', isEqualTo: email)
-              .get();
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
 
       return querySnapshot.docs.isNotEmpty;
     } catch (error) {
@@ -145,7 +150,54 @@ class AuthModel extends ChangeNotifier {
     }
   }
 
-  String? emailValidtaor(String? email) {
+  // LOGOUT
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+    Get.offAllNamed(Routes.login);
+  }
+
+  // Get Credentials
+  Future<void> getCredentials() async {
+    displayName = _auth.currentUser!.displayName;
+    email = _auth.currentUser!.email;
+    photoUrl = _auth.currentUser!.photoURL;
+  }
+
+  // REDIRECT TO HOME IF USER ALREADY LOGGED IN
+  Future<void> checkLoginStatus() async {
+    await authoriseBuyer(); // Wait for authorisation
+    if (_auth.currentUser != null) {
+      Get.offAllNamed(Routes.home);
+    } else {
+      Get.offAllNamed(Routes.login);
+    }
+  }
+
+  Future<void> updateUserCredentials(String email, String name, String? photoUrl) async {
+    try {
+      await _auth.currentUser?.updatePhotoURL(photoUrl);
+      await _auth.currentUser!.updateDisplayName(name);
+      await _auth.currentUser!.verifyBeforeUpdateEmail(email);
+
+      var userQuerySnapshot = await FirebaseFirestore.instance.collection('users').where('userId', isEqualTo: _auth.currentUser!.uid).get();
+
+      if (userQuerySnapshot.docs.isNotEmpty) {
+        await firebaseFirestore.collection('users').doc(_auth.currentUser!.uid).update({
+          "email": email,
+          "name": name
+        });
+      } else {
+        // Document doesn't exist, you might want to handle this case
+        print('User document not found in Firestore.');
+      }
+    } catch (error) {
+      print(error.toString());
+      CustomSnackBar.showSnackBar("Error", "Can't Update. Something went wrong");
+    }
+  }
+
+
+  String? emailValidator(String? email) {
     if (email == null || email.isEmpty) {
       return 'Email field cannot be empty';
     } else if (email.isNotEmpty && !EmailValidator.validate(email)) {
@@ -164,9 +216,9 @@ class AuthModel extends ChangeNotifier {
     return null;
   }
 
-  String? passwordValidtaor(String? password) {
+  String? passwordValidator(String? password) {
     if (password == null || password.isEmpty) {
-      return 'Pasword field cannot be empty';
+      return 'Password field cannot be empty';
     } else if (password.isNotEmpty && password.length < 8) {
       return 'Password cannot be less than 8 characters';
     }
