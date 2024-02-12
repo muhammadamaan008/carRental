@@ -10,4 +10,10 @@ class CustomSnackBar{
     colorText: Colors.black,
     backgroundColor: AppConstants.mainColor);
   }
+
+  static void commonSnackBar(){
+    Get.snackbar('Error', 'Something went wrong.',
+    colorText: Colors.black,
+    backgroundColor: AppConstants.mainColor);
+  }
 }

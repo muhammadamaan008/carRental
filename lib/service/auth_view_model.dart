@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
@@ -38,7 +40,7 @@ class AuthModel extends ChangeNotifier {
         return;
       }
     } catch (error) {
-      CustomSnackBar.showSnackBar('Error', 'Error retrieving document: $error');
+      CustomSnackBar.commonSnackBar();
       isUserBuyer = false;
       return;
     }
@@ -49,38 +51,37 @@ class AuthModel extends ChangeNotifier {
       String email, String password, String userType, String name) async {
     loading = true;
     notifyListeners();
-
-    await _auth
-        .createUserWithEmailAndPassword(email: email, password: password)
-        .then((value) async {
+    try {
+      await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
       await _auth.currentUser!.updateDisplayName(name);
       await storeUserInFireStore(
           _auth.currentUser!.uid.toString(), userType, name, email);
-    }).onError((error, stackTrace) {
+    } catch (error) {
       loading = false;
       notifyListeners();
-      CustomSnackBar.showSnackBar("Error", error.toString());
-    });
+      CustomSnackBar.commonSnackBar();
+    }
   }
 
   Future<void> storeUserInFireStore(
       String userId, String userType, String name, String email) async {
-    await firebaseFirestore.collection('users').doc(userId).set({
-      "userId": userId,
-      "userType": userType,
-      "email": email,
-      "name": name
-    }).then((value) {
+    try {
+      await firebaseFirestore.collection('users').doc(userId).set({
+        "userId": userId,
+        "userType": userType,
+        "email": email,
+        "name": name
+      });
       loading = false;
       notifyListeners();
-
       CustomSnackBar.showSnackBar(
           "Account Created!", "Please login to avail services");
       Get.offNamed(Routes.login);
-    }).onError((error, stackTrace) {
+    } catch (error) {
       loading = false;
       CustomSnackBar.showSnackBar("Error", error.toString());
-    });
+    }
   }
 
   // LOGIN
@@ -94,27 +95,9 @@ class AuthModel extends ChangeNotifier {
       notifyListeners();
       Get.offAllNamed(Routes.home);
     } catch (error) {
-      if (error is FirebaseAuthException) {
-        // Handle FirebaseAuthException
-        switch (error.code) {
-          case 'user-not-found':
-            // Handle user-not-found error
-            print('No user found for that email.');
-            break;
-          case 'wrong-password':
-            // Handle wrong-password error
-            print('Wrong password provided for that user.');
-            break;
-          case 'user-disabled':
-            // Handle user-disabled error
-            print('User has been disabled.');
-            break;
-          // Add more cases for other error codes as needed
-          default:
-            // Handle other FirebaseAuthException errors
-            print('Error signing in: ${error.message}');
-        }
-      }
+      loading = false;
+      notifyListeners();
+      CustomSnackBar.commonSnackBar();
     }
   }
 
@@ -133,7 +116,7 @@ class AuthModel extends ChangeNotifier {
             "Error", "User with this email does not exist.");
       }
     } catch (error) {
-      CustomSnackBar.showSnackBar("Error", error.toString());
+      CustomSnackBar.commonSnackBar();
     }
   }
 
@@ -146,6 +129,7 @@ class AuthModel extends ChangeNotifier {
 
       return querySnapshot.docs.isNotEmpty;
     } catch (error) {
+      CustomSnackBar.commonSnackBar();
       return false;
     }
   }
@@ -160,42 +144,86 @@ class AuthModel extends ChangeNotifier {
   Future<void> getCredentials() async {
     displayName = _auth.currentUser!.displayName;
     email = _auth.currentUser!.email;
-    photoUrl = _auth.currentUser!.photoURL;
+    photoUrl = _auth.currentUser?.photoURL;
   }
 
   // REDIRECT TO HOME IF USER ALREADY LOGGED IN
   Future<void> checkLoginStatus() async {
-    await authoriseBuyer(); // Wait for authorisation
-    if (_auth.currentUser != null) {
-      Get.offAllNamed(Routes.home);
-    } else {
-      Get.offAllNamed(Routes.login);
+    try {
+      await authoriseBuyer(); // Wait for authorisation
+      if (_auth.currentUser != null) {
+        Get.offAllNamed(Routes.home);
+      } else {
+        Get.offAllNamed(Routes.login);
+      }
+    } catch (error) {
+      CustomSnackBar.commonSnackBar();
     }
   }
 
-  Future<void> updateUserCredentials(String email, String name, String? photoUrl) async {
+  Future<String?> uploadImageToStorage(File imageFile) async {
+    try {
+      loading = true;
+      notifyListeners();
+
+      // Generate a unique filename using the user's UID
+      String fileName = _auth.currentUser!.uid;
+      Reference ref =
+          FirebaseStorage.instance.ref().child('profile_images/$fileName');
+      UploadTask uploadTask = ref.putFile(imageFile);
+
+      // Wait for the upload task to complete and get the download URL
+      TaskSnapshot snapshot = await uploadTask;
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      return downloadUrl;
+    } catch (e) {
+      loading = false;
+      notifyListeners();
+      CustomSnackBar.commonSnackBar();
+      return null;
+    }
+  }
+
+  // EDIT PROFILE
+  Future<void> updateUserCredentials(
+      {required String email, required String name, String? photoURL}) async {
+    loading = true;
+    notifyListeners();
+
     try {
       await _auth.currentUser?.updatePhotoURL(photoUrl);
       await _auth.currentUser!.updateDisplayName(name);
       await _auth.currentUser!.verifyBeforeUpdateEmail(email);
 
-      var userQuerySnapshot = await FirebaseFirestore.instance.collection('users').where('userId', isEqualTo: _auth.currentUser!.uid).get();
+      var userQuerySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('userId', isEqualTo: _auth.currentUser!.uid)
+          .get();
 
       if (userQuerySnapshot.docs.isNotEmpty) {
-        await firebaseFirestore.collection('users').doc(_auth.currentUser!.uid).update({
-          "email": email,
-          "name": name
-        });
-      } else {
-        // Document doesn't exist, you might want to handle this case
-        print('User document not found in Firestore.');
+        await firebaseFirestore
+            .collection('users')
+            .doc(_auth.currentUser!.uid)
+            .update({"email": email, "name": name});
+        loading = false;
+        notifyListeners();
+
+        CustomSnackBar.showSnackBar("Updated", "Sucessfully Updated!");
+        Get.offNamed(Routes.home);
       }
     } catch (error) {
-      print(error.toString());
-      CustomSnackBar.showSnackBar("Error", "Can't Update. Something went wrong");
+      loading = false;
+      notifyListeners();
+      CustomSnackBar.commonSnackBar();
+      if (error is FirebaseAuthException &&
+          error.code == 'auth/id-token-expired') {
+        CustomSnackBar.showSnackBar('Error',
+            'Login session expired! You need to login again if want to update.');
+      }
+      return;
     }
   }
-
 
   String? emailValidator(String? email) {
     if (email == null || email.isEmpty) {

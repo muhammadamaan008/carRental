@@ -113,6 +113,7 @@ class _LoginState extends State<Login> {
                           spacing,
                           SizedBox(
                             width: 100.w,
+                            height: 6.h,
                             child: Consumer<AuthModel>(
                               builder: (BuildContext context, AuthModel obj,
                                   Widget? child) {

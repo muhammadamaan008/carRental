@@ -170,6 +170,7 @@ class _SignUpState extends State<SignUp> {
                           spacing,
                           SizedBox(
                             width: 100.w,
+                            height: 6.h,
                             child: Consumer<AuthModel>(
                               builder: (BuildContext context, AuthModel obj,
                                   Widget? child) {

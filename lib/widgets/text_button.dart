@@ -14,7 +14,7 @@ class CustomTextButton extends StatelessWidget {
       onPressed: onPressed,
       style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all( AppConstants.mainColor)),
-      child: loading ?  CircularProgressIndicator(color: Colors.black,strokeWidth: 3.sp): Text(
+      child: loading ?  CircularProgressIndicator(color: Colors.black,strokeWidth: 2.sp): Text(
         btnText.toString(),
         style: TextStyle(
             color: Colors.black, fontSize: 12.sp, fontWeight: FontWeight.w700),
