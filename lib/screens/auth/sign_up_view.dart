@@ -6,6 +6,7 @@ import 'package:rental_app/service/auth_view_model.dart';
 import 'package:rental_app/service/snack_bar.dart';
 import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/widgets/app_bar.dart';
+import 'package:rental_app/widgets/radio_list_tile.dart';
 import 'package:rental_app/widgets/text_button.dart';
 import 'package:rental_app/widgets/text_form_field.dart';
 import 'package:sizer/sizer.dart';
@@ -26,7 +27,7 @@ class _SignUpState extends State<SignUp> {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  SingingCharacter? _character = SingingCharacter.buyer;
+  SingingCharacter? _character;
   final Widget spacing = SizedBox(
     height: 2.h,
   );
@@ -126,44 +127,29 @@ class _SignUpState extends State<SignUp> {
                             suffixIconColor:
                                 const Color.fromARGB(255, 219, 204, 204),
                           ),
+                          spacing,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              SizedBox(
-                                width: 40.w,
-                                child: RadioListTile(
-                                  activeColor: AppConstants.mainColor,
-                                  value: SingingCharacter.seller,
-                                    groupValue: _character,
-                                    onChanged: (SingingCharacter? value) {
-                                      setState(() {
-                                        _character = value;
-                                      });
-                                    },
-                                  title: Text(
-                                    'Seller',
-                                    style: TextStyle(
-                                        fontSize: 13.sp, color: Colors.white),
-                                  ),
-                                ),
+                              CustomRadioListTile<SingingCharacter?>(
+                                radioValue: SingingCharacter.seller,
+                                groupValue: _character,
+                                text: "Seller",
+                                onChange: (value) {
+                                  setState(() {
+                                    _character = value;
+                                  });
+                                },
                               ),
-                              SizedBox(
-                                width: 40.w,
-                                child: RadioListTile(
-                                  activeColor: AppConstants.mainColor,
-                                  value: SingingCharacter.buyer,
-                                    groupValue: _character,
-                                    onChanged: (SingingCharacter? value) {
-                                      setState(() {
-                                        _character = value;
-                                      });
-                                    },
-                                  title: Text(
-                                    'Buyer',
-                                    style: TextStyle(
-                                        fontSize: 13.sp, color: Colors.white),
-                                  ),
-                                ),
+                               CustomRadioListTile<SingingCharacter?>(
+                                radioValue: SingingCharacter.buyer,
+                                groupValue: _character,
+                                text: "Buyer",
+                                onChange: (value) {
+                                  setState(() {
+                                    _character = value;
+                                  });
+                                },
                               ),
                             ],
                           ),
@@ -180,20 +166,13 @@ class _SignUpState extends State<SignUp> {
                                   onPressed: () {
                                     if (formKey.currentState!.validate()) {
                                       CustomSnackBar.showSnackBar(
-                                          'Please wait',
-                                          'Processing started.');
-                                      authModel
-                                          .createUserWithEmailAndPassword(
-                                              emailController.value.text
-                                                  .toString(),
-                                              passwordController.value.text
-                                                  .toString(),
-                                              _character
-                                                  .toString()
-                                                  .split('.')
-                                                  .last,
-                                              nameController.value.text
-                                                  .toString());
+                                          'Please wait', 'Processing started.');
+                                      authModel.createUserWithEmailAndPassword(
+                                          emailController.value.text.toString(),
+                                          passwordController.value.text
+                                              .toString(),
+                                          _character.toString().split('.').last,
+                                          nameController.value.text.toString());
                                     }
                                   },
                                 );
@@ -207,8 +186,8 @@ class _SignUpState extends State<SignUp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Already have an account?',
-                          style: TextStyle(
-                              color: Colors.white, fontSize: 12.sp)),
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 12.sp)),
                       SizedBox(
                         width: 1.w,
                       ),

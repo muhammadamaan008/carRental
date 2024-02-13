@@ -14,7 +14,7 @@ class AuthModel extends ChangeNotifier {
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   bool loading = false;
   late bool isUserBuyer;
-  late String? displayName, email, photoUrl;
+  late String? userDisplayName, userEmail, userPhotoUrl;
 
   AuthModel() {
     authoriseBuyer();
@@ -91,6 +91,7 @@ class AuthModel extends ChangeNotifier {
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await getCredentials();
       loading = false;
       notifyListeners();
       Get.offAllNamed(Routes.home);
@@ -142,9 +143,9 @@ class AuthModel extends ChangeNotifier {
 
   // Get Credentials
   Future<void> getCredentials() async {
-    displayName = _auth.currentUser!.displayName;
-    email = _auth.currentUser!.email;
-    photoUrl = _auth.currentUser?.photoURL;
+    userDisplayName = _auth.currentUser!.displayName;
+    userEmail = _auth.currentUser!.email;
+    userPhotoUrl = _auth.currentUser?.photoURL;
   }
 
   // REDIRECT TO HOME IF USER ALREADY LOGGED IN
@@ -192,7 +193,7 @@ class AuthModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _auth.currentUser?.updatePhotoURL(photoUrl);
+      await _auth.currentUser?.updatePhotoURL(photoURL);
       await _auth.currentUser!.updateDisplayName(name);
       await _auth.currentUser!.verifyBeforeUpdateEmail(email);
 
@@ -206,6 +207,10 @@ class AuthModel extends ChangeNotifier {
             .collection('users')
             .doc(_auth.currentUser!.uid)
             .update({"email": email, "name": name});
+
+        userPhotoUrl = photoURL;
+        userDisplayName = name;
+        userEmail = email;
         loading = false;
         notifyListeners();
 

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:rental_app/screens/add_post.dart';
 import 'package:rental_app/screens/fav_posts.dart';
 import 'package:rental_app/screens/home_view.dart';
-import 'package:rental_app/screens/settings.dart';
+import 'package:rental_app/screens/profile/settings.dart';
 import 'package:rental_app/screens/video.dart';
 import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/widgets/app_bar.dart';
@@ -35,7 +35,7 @@ class _HomeState extends State<Home> {
         child: Scaffold(
       backgroundColor: Colors.black,
       appBar: CustomAppBar(
-        title: "Hi, ${auth.displayName}",
+        title: "Hi, ${auth.userDisplayName}",
         centerTitle: true,
         backgroundColor: Colors.grey.shade900,
         foregroundColor: Colors.white,

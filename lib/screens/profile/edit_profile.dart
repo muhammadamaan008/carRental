@@ -8,8 +8,8 @@ import 'package:rental_app/widgets/app_bar.dart';
 import 'package:rental_app/widgets/text_form_field.dart';
 import 'package:sizer/sizer.dart';
 
-import '../service/auth_view_model.dart';
-import '../widgets/text_button.dart';
+import '../../service/auth_view_model.dart';
+import '../../widgets/text_button.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -32,8 +32,8 @@ class _EditProfileState extends State<EditProfile> {
   void initState() {
     super.initState();
     authModel = Provider.of<AuthModel>(context, listen: false);
-    nameController.text = authModel.displayName!;
-    emailController.text = authModel.email!;
+    nameController.text = authModel.userDisplayName!;
+    emailController.text = authModel.userEmail!;
   }
 
   @override
@@ -90,8 +90,8 @@ class _EditProfileState extends State<EditProfile> {
                         backgroundColor: Colors.transparent,
                         backgroundImage: image != null
                             ? FileImage(image!) as ImageProvider<Object>?
-                            : authModel.photoUrl != null
-                                ? NetworkImage(authModel.photoUrl!)
+                            : authModel.userPhotoUrl != null
+                                ? NetworkImage(authModel.userPhotoUrl!)
                                 : const NetworkImage(
                                     'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg'),
                         child: Align(

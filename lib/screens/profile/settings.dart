@@ -6,7 +6,7 @@ import 'package:rental_app/service/auth_view_model.dart';
 import 'package:rental_app/widgets/text_button.dart';
 import 'package:sizer/sizer.dart';
 
-import '../utils/routes.dart';
+import '../../utils/routes.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -30,21 +30,21 @@ class Settings extends StatelessWidget {
               CircleAvatar(
                 maxRadius: 35.sp,
                 backgroundColor: Colors.transparent,
-                backgroundImage: authObj.photoUrl != null
-                    ? NetworkImage(authObj.photoUrl!)
+                backgroundImage: authObj.userPhotoUrl != null
+                    ? NetworkImage(authObj.userPhotoUrl!)
                     : const NetworkImage(
                         'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg'),
               ),
               spacing,
               Text(
-                authObj.displayName!,
+                authObj.userDisplayName!,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     fontSize: 12.sp),
               ),
               spacing,
-              Text(authObj.email!,
+              Text(authObj.userEmail!,
                   style: TextStyle(color: Colors.white, fontSize: 10.sp)),
               spacing,
               CustomTextButton(
