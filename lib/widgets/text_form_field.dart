@@ -17,6 +17,8 @@ class CustomTextFormField extends StatelessWidget {
   final bool? isFocused;
   final String? labelText;
   final bool? enable;
+  final TextInputType? keyboardType;
+  final bool? ad;
 
   const CustomTextFormField(
       {super.key,
@@ -26,7 +28,7 @@ class CustomTextFormField extends StatelessWidget {
       this.enable = true,
       this.prefixIcon,
       this.prefixIconColor,
-      required this.onValidate,
+     required this.onValidate,
       this.hintText,
       this.hintTextColor,
       this.suffixIcon,
@@ -34,6 +36,8 @@ class CustomTextFormField extends StatelessWidget {
       this.underlineColor,
       this.suffixIconColor,
       this.labelText,
+      this.ad = false,
+      this.keyboardType = TextInputType.text,
       this.isFocused = false});
 
   @override
@@ -41,18 +45,21 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       controller: fieldController,
       cursorColor: cursorColor,
+      keyboardType: keyboardType,
       enabled: enable,
       obscureText: isTextObscured,
       style: TextStyle(color: textColor),
       decoration: InputDecoration(
-          prefix: prefixIcon != null
-              ? IconTheme(
-                  data: const IconThemeData(
-                    color: Colors.grey,
-                  ),
-                  child: prefixIcon!,
-                )
-              : null,
+prefixIcon: prefixIcon,
+
+          // prefix: prefixIcon != null
+          //     ? IconTheme(
+          //         data: const IconThemeData(
+          //           color: Colors.grey,
+          //         ),
+          //         child: prefixIcon!,
+          //       )
+          //     : null,
           hintText: hintText,
           labelText: labelText,
           labelStyle: TextStyle(
@@ -65,11 +72,9 @@ class CustomTextFormField extends StatelessWidget {
             borderSide: BorderSide(color: underlineColor ?? Colors.white),
           ),
            disabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: underlineColor ?? Colors.white),
+            borderSide: BorderSide(color: underlineColor ?? Colors.grey),
           )
-          
           ),
-          
       validator: onValidate,
     );
   }

@@ -5,10 +5,11 @@ import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_app/screens/profile/edit_profile.dart';
-import 'package:rental_app/screens/home.dart';
+import 'package:rental_app/screens/home/home.dart';
 import 'package:rental_app/screens/profile/privacy.dart';
 import 'package:rental_app/screens/profile/terms_and_conditions.dart';
-import 'package:rental_app/service/auth_view_model.dart';
+import 'package:rental_app/screens/post/ad_view_model.dart';
+import 'package:rental_app/screens/auth/auth_view_model.dart';
 import 'package:rental_app/screens/auth/forgot_password_view.dart';
 import 'package:rental_app/screens/auth/login_view.dart';
 import 'package:rental_app/screens/auth/sign_up_view.dart';
@@ -22,6 +23,7 @@ void main() async{
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => AuthModel()),
+      ChangeNotifierProvider(create: (context) => AdModel()),
     ],
     child: const MyApp(),
   ));

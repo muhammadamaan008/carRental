@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:provider/provider.dart';
-import 'package:rental_app/service/auth_view_model.dart';
+import 'package:rental_app/screens/auth/auth_view_model.dart';
 import 'package:rental_app/service/snack_bar.dart';
 import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/utils/routes.dart';

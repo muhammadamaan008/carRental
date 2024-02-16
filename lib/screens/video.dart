@@ -1,10 +1,11 @@
 import 'package:chewie/chewie.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 import 'package:video_player/video_player.dart';
 
 class Video extends StatefulWidget {
-  const Video({Key? key}) : super(key: key);
+  const Video({super.key});
 
   @override
   State<Video> createState() => _VideoState();
@@ -13,12 +14,24 @@ class Video extends StatefulWidget {
 class _VideoState extends State<Video> {
   late VideoPlayerController _videoPlayerController;
   late ChewieController _chewieController;
-  late Future<String> _downloadUrl;
+  late Future<void> _initializeVideoPlayerFuture;
 
   @override
   void initState() {
     super.initState();
-    _downloadUrl = getDownloadURL('cat_video.mp4');
+    _initializeVideoPlayerFuture = initializeVideoPlayer();
+  }
+
+  Future<void> initializeVideoPlayer() async {
+    String downloadURL = await getDownloadURL('cat_video.mp4');
+    _videoPlayerController = VideoPlayerController.network(downloadURL);
+    await _videoPlayerController.initialize();
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoPlayerController,
+      autoPlay: false,
+      looping: true,
+    );
   }
 
   Future<String> getDownloadURL(String filePath) async {
@@ -33,27 +46,27 @@ class _VideoState extends State<Video> {
   }
 
   @override
+  void dispose() {
+    _videoPlayerController.dispose();
+    _chewieController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: FutureBuilder<String>(
-        future: _downloadUrl,
+      backgroundColor: Colors.black,
+      body: FutureBuilder(
+        future: _initializeVideoPlayerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            _videoPlayerController =
-                VideoPlayerController.network(snapshot.data!);
-            _chewieController = ChewieController(
-              videoPlayerController: _videoPlayerController,
-              autoPlay: true,
-              looping: true,
+            return SizedBox(
+              width: 100.w,
+              height: 100.h,
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [CircularProgressIndicator(color: Colors.red),Text('Loading Video', style: TextStyle(color: Colors.white),)],),
             );
-            _videoPlayerController.initialize().then((_) {
-              setState(() {}); // Trigger rebuild once video player is initialized
-            });
+          } else {
             return Center(
               child: AspectRatio(
                 aspectRatio: 16 / 9,
@@ -64,12 +77,5 @@ class _VideoState extends State<Video> {
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController.dispose();
-    super.dispose();
   }
 }

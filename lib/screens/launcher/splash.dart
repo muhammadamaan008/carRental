@@ -7,7 +7,7 @@ import 'package:rental_app/widgets/app_bar.dart';
 import 'package:rental_app/widgets/text_button.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../service/auth_view_model.dart';
+import '../auth/auth_view_model.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});

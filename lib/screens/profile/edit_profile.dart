@@ -8,7 +8,7 @@ import 'package:rental_app/widgets/app_bar.dart';
 import 'package:rental_app/widgets/text_form_field.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../service/auth_view_model.dart';
+import '../auth/auth_view_model.dart';
 import '../../widgets/text_button.dart';
 
 class EditProfile extends StatefulWidget {

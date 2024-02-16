@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:rental_app/screens/add_post.dart';
-import 'package:rental_app/screens/fav_posts.dart';
-import 'package:rental_app/screens/home_view.dart';
+import 'package:rental_app/screens/post/add_post.dart';
+import 'package:rental_app/screens/post/fav_posts.dart';
+import 'package:rental_app/screens/home/home_view.dart';
 import 'package:rental_app/screens/profile/settings.dart';
 import 'package:rental_app/screens/video.dart';
 import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/widgets/app_bar.dart';
 import 'package:sizer/sizer.dart';
 
-import '../service/auth_view_model.dart';
+import '../auth/auth_view_model.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
