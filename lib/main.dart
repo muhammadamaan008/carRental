@@ -4,6 +4,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
+import 'package:rental_app/screens/car_details.dart';
 import 'package:rental_app/screens/profile/edit_profile.dart';
 import 'package:rental_app/screens/home/home.dart';
 import 'package:rental_app/screens/profile/privacy.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
           GetPage(name: Routes.termsAndCondition, page: () => const TermsAndConditions(), transition: Transition.zoom),
           GetPage(name: Routes.privacy, page: () => const Privacy(), transition: Transition.zoom),
           GetPage(name: Routes.editProfile, page: () => const EditProfile(), transition: Transition.zoom),
+          GetPage(name: Routes.carDetails, page: () => const CarDetails(), transition: Transition.zoom),
         ],
         ),
       );

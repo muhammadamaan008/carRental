@@ -7,4 +7,5 @@ class Routes {
   static const String termsAndCondition = '/termsAndCondition';
   static const String privacy = '/privacy';
   static const String editProfile = '/editProfile';
+  static const String carDetails = '/carDetails';
 }

@@ -52,6 +52,8 @@ dependencies:
   chewie: ^1.5.0
   flutter_form_builder: ^9.2.1
   cached_network_image: ^3.3.1
+  carousel_slider: ^4.2.1
+  another_carousel_pro: ^1.0.2
 
 dev_dependencies:
   flutter_test:
