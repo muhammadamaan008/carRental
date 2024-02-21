@@ -43,7 +43,6 @@ class _AddPostState extends State<AddPost> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     adViewModel = Provider.of<AdModel>(context, listen: false);
   }
@@ -112,7 +111,7 @@ class _AddPostState extends State<AddPost> {
                           isTextObscured: false,
                           cursorColor: Colors.white,
                           labelText: 'Model',
-                          onValidate: (value)=> null,
+                          onValidate: adViewModel.modelValidator,
                           hintText: 'e.g Mercedes Benz SClass',
                           hintTextColor: Colors.white,
                           textColor: Colors.white),

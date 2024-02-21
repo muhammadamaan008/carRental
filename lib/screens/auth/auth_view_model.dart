@@ -16,10 +16,14 @@ class AuthModel extends ChangeNotifier {
   late bool isUserBuyer;
   late String? userDisplayName, userEmail, userPhotoUrl;
 
-  AuthModel() {
-    authoriseBuyer();
-    getCredentials();
-  }
+  // AuthModel() {
+  //   initializeAuthModel();
+  // }
+
+  // Future<void> initializeAuthModel() async {
+  //   await authoriseBuyer();
+  //   await getCredentials();
+  // }
 
   // AUTHORISATION
   Future<void> authoriseBuyer() async {
@@ -31,12 +35,22 @@ class AuthModel extends ChangeNotifier {
 
       if (querySnapshot.docs.isNotEmpty) {
         var userType = querySnapshot.docs[0]['userType'];
-        isUserBuyer = userType == 'buyer';
-        return;
+        print('type of $userType');
+        if(userType == 'buyer'){
+          isUserBuyer = true;
+          notifyListeners();
+        }
+        else{
+          isUserBuyer = false;
+          notifyListeners();
+        }
+        // isUserBuyer = userType == 'buyer';
+        // return;
       } else {
         CustomSnackBar.showSnackBar('Error',
             'No documents found with userId: ${_auth.currentUser!.uid.toString()}');
         isUserBuyer = false;
+        notifyListeners();
         return;
       }
     } catch (error) {
@@ -95,11 +109,16 @@ class AuthModel extends ChangeNotifier {
       loading = false;
       notifyListeners();
       Get.offAllNamed(Routes.home);
-    } catch (error) {
-      loading = false;
-      notifyListeners();
+    } on FirebaseAuthException catch (e) {
+    loading = false;
+    notifyListeners();
+    if (e.code == 'firebase_auth/invalid-credential') {
+      return CustomSnackBar.showSnackBar('Error', 'Wrong Password');
+    } else {
       CustomSnackBar.commonSnackBar();
+      debugPrint(e.toString());
     }
+  }
   }
 
   // Forgot Password

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:rental_app/screens/post/ad_view_model.dart';
 import 'package:rental_app/screens/post/add_post.dart';
 import 'package:rental_app/screens/post/fav_posts.dart';
 import 'package:rental_app/screens/home/home_view.dart';
@@ -20,76 +21,116 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<Widget> pages = [
-    const HomeView(),
-    const AddPost(),
-    const Favourites(),
-    const Settings()
-  ];
-  late AuthModel auth = Provider.of<AuthModel>(context, listen: false);
   int currentIndex = 0;
+  late AuthModel authModel;
+  late AdModel adViewModel;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    authModel = Provider.of<AuthModel>(context, listen: false);
+    adViewModel = Provider.of<AdModel>(context, listen: false);
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    await authModel.getCredentials();
+    await authModel.authoriseBuyer();
+    await adViewModel.getAllAdData();
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      backgroundColor: Colors.black,
-      appBar: CustomAppBar(
-        title: "Hi, ${auth.userDisplayName}",
-        centerTitle: true,
-        backgroundColor: Colors.grey.shade900,
-        foregroundColor: Colors.white,
-      ),
-      body: currentIndex == 0
-          ? const HomeView()
-          : currentIndex == 2
-              ? const Video()
-              : currentIndex == 3
-                  ? const Settings()
-                  : currentIndex == 1 && auth.isUserBuyer
-                      ? const Favourites()
-                      : const AddPost(),
-      bottomNavigationBar: GNav(
-          onTabChange: (index) {
-            setState(() {
-              currentIndex = index;
-            });
-          },
-          backgroundColor: Colors.grey.shade900,
-          color: Colors.white,
-          gap: 5.sp,
-          activeColor: Colors.grey.shade900,
-          tabBackgroundColor: AppConstants.mainColor,
-          tabBorderRadius: 100.sp,
-          tabMargin:
-              EdgeInsets.only(top: 5.sp, bottom: 5.sp, left: 2.sp, right: 2.sp),
-          style: GnavStyle.google,
-          padding: EdgeInsets.all(10.sp),
-          textSize: 100.sp,
-          textStyle: const TextStyle(fontWeight: FontWeight.bold),
-          tabs: [
-            const GButton(
-              icon: Icons.home,
-              text: 'Home',
+      child: Consumer<AuthModel>(
+        builder: (BuildContext context, AuthModel auth, Widget? child) {
+          print('hnnnnn ${auth.isUserBuyer}');
+          return Scaffold(
+            backgroundColor: Colors.black,
+            appBar: CustomAppBar(
+              title: "Hi, ${authModel.userDisplayName}",
+              centerTitle: true,
+              backgroundColor: Colors.grey.shade900,
+              foregroundColor: Colors.white,
             ),
-            auth.isUserBuyer
-                ? const GButton(
-                    icon: Icons.favorite,
-                    text: 'Fav',
+            body: isLoading
+                ? SizedBox(
+                    width: 100.w,
+                    height: 100.h,
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Colors.red),
+                        Text(
+                          'Loading Ads',
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
                   )
-                : const GButton(
-                    icon: Icons.add_box,
-                    text: 'Add Post',
-                  ),
-            const GButton(
-              icon: Icons.video_call,
-              text: 'Video',
+                : currentIndex == 0
+                    ? const HomeView()
+                    : currentIndex == 2
+                        ? const Video()
+                        : currentIndex == 3
+                            ? const Settings()
+                            : currentIndex == 1 && auth.isUserBuyer
+                                ? const Favourites()
+                                : const AddPost(),
+            bottomNavigationBar: GNav(
+              onTabChange: (index) {
+                setState(() {
+                  currentIndex = index;
+                });
+              },
+              backgroundColor: Colors.grey.shade900,
+              color: Colors.white,
+              gap: 5.sp,
+              activeColor: Colors.grey.shade900,
+              tabBackgroundColor: AppConstants.mainColor,
+              tabBorderRadius: 100.sp,
+              tabMargin: EdgeInsets.only(
+                top: 5.sp,
+                bottom: 5.sp,
+                left: 2.sp,
+                right: 2.sp,
+              ),
+              style: GnavStyle.google,
+              padding: EdgeInsets.all(10.sp),
+              textSize: 100.sp,
+              textStyle: const TextStyle(fontWeight: FontWeight.bold),
+              tabs: [
+                const GButton(
+                  icon: Icons.home,
+                  text: 'Home',
+                ),
+                auth.isUserBuyer
+                    ? const GButton(
+                        icon: Icons.favorite,
+                        text: 'Fav',
+                      )
+                    : const GButton(
+                        icon: Icons.add_box,
+                        text: 'Add Post',
+                      ),
+                const GButton(
+                  icon: Icons.video_call,
+                  text: 'Video',
+                ),
+                const GButton(
+                  icon: Icons.settings,
+                  text: 'Settings',
+                ),
+              ],
             ),
-            const GButton(
-              icon: Icons.settings,
-              text: 'Settings',
-            ),
-          ]),
-    ));
+          );
+        },
+      ),
+    );
   }
 }

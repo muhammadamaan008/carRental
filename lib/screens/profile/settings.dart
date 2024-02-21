@@ -29,7 +29,7 @@ class Settings extends StatelessWidget {
               spacing,
               CircleAvatar(
                 maxRadius: 35.sp,
-                backgroundColor: Colors.transparent,
+                backgroundColor: Colors.grey.shade900,
                 backgroundImage: authObj.userPhotoUrl != null
                     ? NetworkImage(authObj.userPhotoUrl!)
                     : const NetworkImage(
