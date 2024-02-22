@@ -16,14 +16,14 @@ class AuthModel extends ChangeNotifier {
   late bool isUserBuyer;
   late String? userDisplayName, userEmail, userPhotoUrl;
 
-  // AuthModel() {
-  //   initializeAuthModel();
-  // }
+  AuthModel() {
+    initializeAuthModel();
+  }
 
-  // Future<void> initializeAuthModel() async {
-  //   await authoriseBuyer();
-  //   await getCredentials();
-  // }
+  Future<void> initializeAuthModel() async {
+    await authoriseBuyer();
+    // await getCredentials();
+  }
 
   // AUTHORISATION
   Future<void> authoriseBuyer() async {
@@ -35,17 +35,13 @@ class AuthModel extends ChangeNotifier {
 
       if (querySnapshot.docs.isNotEmpty) {
         var userType = querySnapshot.docs[0]['userType'];
-        print('type of $userType');
-        if(userType == 'buyer'){
+        if (userType == 'buyer') {
           isUserBuyer = true;
           notifyListeners();
-        }
-        else{
+        } else {
           isUserBuyer = false;
           notifyListeners();
         }
-        // isUserBuyer = userType == 'buyer';
-        // return;
       } else {
         CustomSnackBar.showSnackBar('Error',
             'No documents found with userId: ${_auth.currentUser!.uid.toString()}');
@@ -71,10 +67,28 @@ class AuthModel extends ChangeNotifier {
       await _auth.currentUser!.updateDisplayName(name);
       await storeUserInFireStore(
           _auth.currentUser!.uid.toString(), userType, name, email);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        CustomSnackBar.showSnackBar('Error', 'Email Already in use');
+        loading = false;
+        notifyListeners();
+      } else if (e.code == 'network-request-failed') {
+        CustomSnackBar.showSnackBar('Error', 'Network error occured');
+        loading = false;
+        notifyListeners();
+      } else if (e.code == 'operation-not-allowed') {
+        CustomSnackBar.showSnackBar('Error', 'Operation not allowed');
+        loading = false;
+        notifyListeners();
+      } else {
+        CustomSnackBar.commonSnackBar();
+        loading = false;
+        notifyListeners();
+      }
     } catch (error) {
+      CustomSnackBar.commonSnackBar();
       loading = false;
       notifyListeners();
-      CustomSnackBar.commonSnackBar();
     }
   }
 
@@ -109,16 +123,40 @@ class AuthModel extends ChangeNotifier {
       loading = false;
       notifyListeners();
       Get.offAllNamed(Routes.home);
-    } on FirebaseAuthException catch (e) {
-    loading = false;
-    notifyListeners();
-    if (e.code == 'firebase_auth/invalid-credential') {
-      return CustomSnackBar.showSnackBar('Error', 'Wrong Password');
-    } else {
       CustomSnackBar.commonSnackBar();
-      debugPrint(e.toString());
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-credential') {
+        CustomSnackBar.showSnackBar('Error', 'Invalid Credentials');
+        loading = false;
+        notifyListeners();
+      } else if (e.code == 'too-many-requests') {
+        CustomSnackBar.showSnackBar(
+            'Error', 'Too Many Request. Try again later.');
+        loading = false;
+        notifyListeners();
+      } else if (e.code == 'network-request-failed') {
+        CustomSnackBar.showSnackBar('Error', 'Network error occured');
+        loading = false;
+        notifyListeners();
+      } else if (e.code == 'user-disabled') {
+        CustomSnackBar.showSnackBar(
+            'Error', 'Temporarily blocked. Try again later.');
+        loading = false;
+        notifyListeners();
+      } else if (e.code == 'user-not-found') {
+        CustomSnackBar.showSnackBar('Error', 'User not found');
+        loading = false;
+        notifyListeners();
+      } else {
+        CustomSnackBar.commonSnackBar();
+        loading = false;
+        notifyListeners();
+      }
+    } catch (error) {
+      CustomSnackBar.commonSnackBar();
+      loading = false;
+      notifyListeners();
     }
-  }
   }
 
   // Forgot Password
@@ -236,16 +274,18 @@ class AuthModel extends ChangeNotifier {
         CustomSnackBar.showSnackBar("Updated", "Sucessfully Updated!");
         Get.offNamed(Routes.home);
       }
-    } catch (error) {
+      //id-token-expired
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'id-token-expired') {
+        CustomSnackBar.showSnackBar('Error', 'Login again to update.');
+        loading = false;
+        notifyListeners();
+        Get.offAllNamed(Routes.login);
+      }
+    } catch (e) {
+      CustomSnackBar.commonSnackBar();
       loading = false;
       notifyListeners();
-      CustomSnackBar.commonSnackBar();
-      if (error is FirebaseAuthException &&
-          error.code == 'auth/id-token-expired') {
-        CustomSnackBar.showSnackBar('Error',
-            'Login session expired! You need to login again if want to update.');
-      }
-      return;
     }
   }
 

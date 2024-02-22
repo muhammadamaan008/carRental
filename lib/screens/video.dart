@@ -40,7 +40,7 @@ class _VideoState extends State<Video> {
       String downloadURL = await ref.getDownloadURL();
       return downloadURL;
     } catch (error) {
-      print('Error getting download URL: $error');
+      debugPrint('Error getting download URL: $error');
       return '';
     }
   }

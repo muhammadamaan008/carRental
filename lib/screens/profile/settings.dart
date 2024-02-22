@@ -23,87 +23,86 @@ class Settings extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 5.w),
         child: Consumer<AuthModel>(
-                    builder: (BuildContext context,AuthModel authObj, Widget? child) { 
+          builder: (BuildContext context, AuthModel authObj, Widget? child) {
             return Column(
-            children: [
-              spacing,
-              CircleAvatar(
-                maxRadius: 35.sp,
-                backgroundColor: Colors.grey.shade900,
-                backgroundImage: authObj.userPhotoUrl != null
-                    ? NetworkImage(authObj.userPhotoUrl!)
-                    : const NetworkImage(
-                        'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg'),
-              ),
-              spacing,
-              Text(
-                authObj.userDisplayName!,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 12.sp),
-              ),
-              spacing,
-              Text(authObj.userEmail!,
-                  style: TextStyle(color: Colors.white, fontSize: 10.sp)),
-              spacing,
-              CustomTextButton(
-                btnText: 'Edit Profile',
-                onPressed: () {
-                  Get.toNamed(Routes.editProfile);
-                },
-              ),
-              spacing,
-              Divider(
-                color: Colors.grey.shade900,
-                thickness: 1.sp,
-              ),
-              ListTile(
-                title: const Text('Terms & Condition'),
-                textColor: Colors.white,
-                trailing: const Icon(Icons.arrow_forward_ios_rounded),
-                onTap: () {
-                  Get.toNamed(Routes.termsAndCondition);
-                },
-              ),
-              Divider(
-                color: Colors.grey.shade900,
-                thickness: 1.sp,
-              ),
-              ListTile(
-                title: const Text('Privacy Policy'),
-                textColor: Colors.white,
-                trailing: const Icon(Icons.arrow_forward_ios_rounded),
-                onTap: () {
-                  Get.toNamed(Routes.privacy);
-                },
-              ),
-              Divider(
-                color: Colors.grey.shade900,
-                thickness: 1.sp,
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                textColor: Colors.red,
-                onTap: () {
-                  Get.defaultDialog(
-                    title: 'Confirmation',
-                    middleText: 'Are you sure you want to logout?',
-                    textConfirm: 'Ok',
-                    buttonColor: Colors.grey.shade900,
-                    onConfirm: () async {
-                      //To Be Written
-                      authModel.logout();
-                    },
-                  );
-                },
-              )
-            ],
-          );
-
-           },
-    
+              children: [
+                spacing,
+                CircleAvatar(
+                    maxRadius: 35.sp,
+                    backgroundColor: Colors.grey.shade900,
+                    foregroundImage: authObj.userPhotoUrl != null
+                        ? NetworkImage(authObj.userPhotoUrl!)
+                        : const NetworkImage(
+                            'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg'),
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    )),
+                spacing,
+                Text(
+                  authObj.userDisplayName!,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 12.sp),
+                ),
+                spacing,
+                Text(authObj.userEmail!,
+                    style: TextStyle(color: Colors.white, fontSize: 10.sp)),
+                spacing,
+                CustomTextButton(
+                  btnText: 'Edit Profile',
+                  onPressed: () {
+                    Get.toNamed(Routes.editProfile);
+                  },
+                ),
+                spacing,
+                Divider(
+                  color: Colors.grey.shade900,
+                  thickness: 1.sp,
+                ),
+                ListTile(
+                  title: const Text('Terms & Condition'),
+                  textColor: Colors.white,
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded),
+                  onTap: () {
+                    Get.toNamed(Routes.termsAndCondition);
+                  },
+                ),
+                Divider(
+                  color: Colors.grey.shade900,
+                  thickness: 1.sp,
+                ),
+                ListTile(
+                  title: const Text('Privacy Policy'),
+                  textColor: Colors.white,
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded),
+                  onTap: () {
+                    Get.toNamed(Routes.privacy);
+                  },
+                ),
+                Divider(
+                  color: Colors.grey.shade900,
+                  thickness: 1.sp,
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: const Text('Logout'),
+                  textColor: Colors.red,
+                  onTap: () {
+                    Get.defaultDialog(
+                      title: 'Confirmation',
+                      middleText: 'Are you sure you want to logout?',
+                      textConfirm: 'Ok',
+                      buttonColor: Colors.grey.shade900,
+                      onConfirm: () async {
+                        authModel.logout();
+                      },
+                    );
+                  },
+                )
+              ],
+            );
+          },
         ),
       ),
     );

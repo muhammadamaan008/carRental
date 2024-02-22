@@ -53,7 +53,7 @@ class _EditProfileState extends State<EditProfile> {
       if (pickedImage != null) {
         image = File(pickedImage.path);
       } else {
-        print('No Image Picked');
+        debugPrint('No Image Picked');
       }
     });
   }
@@ -141,7 +141,6 @@ class _EditProfileState extends State<EditProfile> {
                       child: Consumer<AuthModel>(
                         builder: (BuildContext context, AuthModel obj,
                             Widget? child) {
-                          print(obj.loading);
                           return CustomTextButton(
                             loading: obj.loading,
                             btnText: 'Update',

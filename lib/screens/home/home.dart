@@ -35,9 +35,10 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> initializeData() async {
-    await authModel.getCredentials();
     await authModel.authoriseBuyer();
+    await authModel.getCredentials();
     await adViewModel.getAllAdData();
+    await adViewModel.getAdsFromFavourites();
     setState(() {
       isLoading = false;
     });
@@ -46,90 +47,86 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Consumer<AuthModel>(
-        builder: (BuildContext context, AuthModel auth, Widget? child) {
-          print('hnnnnn ${auth.isUserBuyer}');
-          return Scaffold(
-            backgroundColor: Colors.black,
-            appBar: CustomAppBar(
-              title: "Hi, ${authModel.userDisplayName}",
-              centerTitle: true,
-              backgroundColor: Colors.grey.shade900,
-              foregroundColor: Colors.white,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: CustomAppBar(
+          title: "Hi, ${authModel.userDisplayName}",
+          centerTitle: true,
+          backgroundColor: Colors.grey.shade900,
+          foregroundColor: Colors.white,
+          backArrow: false,
+        ),
+        body: isLoading
+            ? SizedBox(
+                width: 100.w,
+                height: 100.h,
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(color: Colors.red),
+                    Text(
+                      'Loading Ads',
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+              )
+            : currentIndex == 0
+                ? const HomeView()
+                : currentIndex == 2
+                    ? const Video()
+                    : currentIndex == 3
+                        ? const Settings()
+                        : currentIndex == 1 && authModel.isUserBuyer
+                            ? const Favourites()
+                            : const AddPost(),
+        bottomNavigationBar: GNav(
+          onTabChange: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+          backgroundColor: Colors.grey.shade900,
+          color: Colors.white,
+          gap: 5.sp,
+          activeColor: Colors.grey.shade900,
+          tabBackgroundColor: AppConstants.mainColor,
+          tabBorderRadius: 100.sp,
+          tabMargin: EdgeInsets.only(
+            top: 5.sp,
+            bottom: 5.sp,
+            left: 2.sp,
+            right: 2.sp,
+          ),
+          style: GnavStyle.google,
+          padding: EdgeInsets.all(10.sp),
+          textSize: 100.sp,
+          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          tabs: [
+            const GButton(
+              icon: Icons.home,
+              text: 'Home',
             ),
-            body: isLoading
-                ? SizedBox(
-                    width: 100.w,
-                    height: 100.h,
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.red),
-                        Text(
-                          'Loading Ads',
-                          style: TextStyle(color: Colors.white),
-                        )
-                      ],
-                    ),
+            authModel.isUserBuyer
+                ? const GButton(
+                    icon: Icons.favorite,
+                    text: 'Fav',
                   )
-                : currentIndex == 0
-                    ? const HomeView()
-                    : currentIndex == 2
-                        ? const Video()
-                        : currentIndex == 3
-                            ? const Settings()
-                            : currentIndex == 1 && auth.isUserBuyer
-                                ? const Favourites()
-                                : const AddPost(),
-            bottomNavigationBar: GNav(
-              onTabChange: (index) {
-                setState(() {
-                  currentIndex = index;
-                });
-              },
-              backgroundColor: Colors.grey.shade900,
-              color: Colors.white,
-              gap: 5.sp,
-              activeColor: Colors.grey.shade900,
-              tabBackgroundColor: AppConstants.mainColor,
-              tabBorderRadius: 100.sp,
-              tabMargin: EdgeInsets.only(
-                top: 5.sp,
-                bottom: 5.sp,
-                left: 2.sp,
-                right: 2.sp,
-              ),
-              style: GnavStyle.google,
-              padding: EdgeInsets.all(10.sp),
-              textSize: 100.sp,
-              textStyle: const TextStyle(fontWeight: FontWeight.bold),
-              tabs: [
-                const GButton(
-                  icon: Icons.home,
-                  text: 'Home',
-                ),
-                auth.isUserBuyer
-                    ? const GButton(
-                        icon: Icons.favorite,
-                        text: 'Fav',
-                      )
-                    : const GButton(
-                        icon: Icons.add_box,
-                        text: 'Add Post',
-                      ),
-                const GButton(
-                  icon: Icons.video_call,
-                  text: 'Video',
-                ),
-                const GButton(
-                  icon: Icons.settings,
-                  text: 'Settings',
-                ),
-              ],
+                : const GButton(
+                    icon: Icons.add_box,
+                    text: 'Add Post',
+                  ),
+            const GButton(
+              icon: Icons.video_call,
+              text: 'Video',
             ),
-          );
-        },
+            const GButton(
+              icon: Icons.settings,
+              text: 'Settings',
+            ),
+          ],
+        ),
       ),
     );
   }

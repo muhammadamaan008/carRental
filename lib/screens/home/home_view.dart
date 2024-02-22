@@ -35,9 +35,9 @@ class _HomeViewState extends State<HomeView> {
             child: Consumer<AdModel>(
               builder: (BuildContext context, AdModel value, Widget? child) {
                 return GridView.builder(
-                  itemCount: value.itemData.length,
+                  itemCount: value.adData.length,
                   itemBuilder: (context, index) {
-                    final ad = value.itemData[index];
+                    final ad = value.adData[index];
                     return GestureDetector(
                       onTap: () {
                         Get.toNamed(Routes.carDetails);
@@ -59,11 +59,12 @@ class _HomeViewState extends State<HomeView> {
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 2.w),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Flexible(
                                     child: Text(
-                                      ad.rate.toString(),
+                                      ad.rates.toString(),
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 12.sp,
@@ -76,38 +77,23 @@ class _HomeViewState extends State<HomeView> {
                                           borderRadius:
                                               BorderRadius.circular(10.sp),
                                           onTap: () {
-                                            value.toggleFavourite(index);
+                                            adViewModel.toggleFavourite(index);
                                           },
                                           child: Icon(
-                                            value.itemData[index].isFav
+                                            value.adData[index].isFav
                                                 ? Icons.favorite
-                                                : Icons.favorite_border_outlined,
+                                                : Icons
+                                                    .favorite_border_outlined,
                                             color: Colors.white,
                                           ))
                                       : const SizedBox()
-                                  // authModel.isUserBuyer
-                                  //     ? IconButton(
-                                  //         padding: EdgeInsets.zero,
-                                  //         onPressed: () {
-                                  //           value.toggleFavourite(index);
-                                  //         },
-                                  //         icon: Icon(
-                                  //           value.itemData[index].isFav
-                                  //               ? Icons.favorite
-                                  //               : Icons
-                                  //                   .favorite_border_outlined,
-                                  //           color: Colors.white,
-                                  //           size: 18.sp,
-                                  //         ),
-                                  //       )
-                                  //     : Padding(
-                                  //         padding: EdgeInsets.symmetric(
-                                  //             vertical: 2.5.h)),
                                 ],
                               ),
                             ),
                             Image.network(
-                              ad.imageUrl!,
+                              ad.images != null && ad.images!.isNotEmpty
+                                  ? ad.images![0]
+                                  : 'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg',
                               height: 20.h,
                               width: 100.w,
                               fit: BoxFit.contain,
@@ -115,7 +101,8 @@ class _HomeViewState extends State<HomeView> {
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 2.w),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Flexible(
                                     child: Text(

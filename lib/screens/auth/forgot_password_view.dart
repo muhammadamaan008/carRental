@@ -22,7 +22,7 @@ class ForgotPassword extends StatelessWidget {
     final forgotFieldController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
-    final Widget Spacing = SizedBox(
+    final Widget spacing = SizedBox(
       height: 2.h,
     );
 
@@ -51,12 +51,12 @@ class ForgotPassword extends StatelessWidget {
                     'Forgot Password?',
                     style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold, fontSize: 25.sp),
                   ),
-                  Spacing,
+                  spacing,
                   Text(
                     'Enter the email you registered with and we will send you a link to reset your password',
                     style: TextStyle(color: Colors.white,fontSize: 12.sp),
                   ),
-                  Spacing,
+                  spacing,
                   Form(
                     key: formKey,
                     child: Column(
@@ -73,7 +73,7 @@ class ForgotPassword extends StatelessWidget {
                           textColor: Colors.white,
                           underlineColor: Colors.white,
                         ),
-                        Spacing,
+                        spacing,
                         SizedBox(
                           width: 100.w,
                           child: CustomTextButton(
@@ -88,7 +88,7 @@ class ForgotPassword extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Spacing,
+                  spacing,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                       children: [

@@ -9,10 +9,12 @@ class Ad {
   final String uId;
   final int rates;
   final String location;
-  List? images; 
+  List? images;
+  bool isFav; 
 
   Ad({
     this.adId,
+    this.isFav=false,
     required this.make,
     required this.model,
     required this.year,

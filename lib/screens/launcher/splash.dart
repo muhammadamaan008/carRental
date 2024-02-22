@@ -17,15 +17,18 @@ class Splash extends StatefulWidget {
 }
 
 class _SplashState extends State<Splash> {
+  late AuthModel authModel;
   @override
   void initState() {
     super.initState();
-    Provider.of<AuthModel>(context, listen: false).checkLoginStatus();
+    authModel = Provider.of<AuthModel>(context,listen: false);
+    // Provider.of<AuthModel>(context, listen: false).checkLoginStatus();
     // Timer(const Duration(seconds: 3), () => Get.offNamed(Routes.login));
   }
 
   @override
   Widget build(BuildContext context) {
+    // authModel.checkLoginStatus();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: const CustomAppBar(

@@ -6,10 +6,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool centerTitle;
   final Color backgroundColor;
   final Color? foregroundColor;
+  final bool backArrow;
   const CustomAppBar(
       {super.key,
       required this.title,
       required this.centerTitle,
+       this.backArrow = true,
       required this.backgroundColor,
       this.foregroundColor});
 
@@ -23,6 +25,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: backgroundColor,
       foregroundColor: foregroundColor,
       centerTitle: centerTitle,
+      automaticallyImplyLeading: backArrow,
     );
   }
 }

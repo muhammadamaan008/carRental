@@ -82,7 +82,6 @@ class AdModel extends ChangeNotifier {
   Future<void> getAllAdData() async {
     AuthModel authModel = AuthModel();
 
-    // Wait for authorisation
     await authModel.authoriseBuyer();
     bool isUserBuyer = authModel.isUserBuyer;
 
@@ -90,10 +89,12 @@ class AdModel extends ChangeNotifier {
     try {
       adData.clear();
       await ref.get().then((querySnapshot) async {
+        await getAdsFromFavourites();
         for (var result in querySnapshot.docs) {
           var data = result.data();
           if (isUserBuyer) {
-            // Fetch all ads for buyers or only the ads posted by the current user for sellers
+            bool favAd = itemData.any((item) => item.adId == data['adId']);
+
             var ad = Ad(
                 adId: data['adId'],
                 make: data['make'],
@@ -104,25 +105,13 @@ class AdModel extends ChangeNotifier {
                 timeStamp: data['timeStamp'].toDate(),
                 uId: data['userId'],
                 rates: data['rates'],
-                location: data['location']);
+                location: data['location'],
+                isFav: favAd);
 
             List<String> imageURLs = await getImagesForAdId(ad.adId!, ad.uId);
             ad.images = imageURLs;
 
-            // Add the created Ad instance to adData list
             adData.add(ad);
-            itemData.clear();
-            for (var ad in adData) {
-              itemData.add(ListItemModel(
-                adId: ad.adId!,
-                rate: ad.rates,
-                model: ad.model,
-                year: ad.year,
-                imageUrl: ad.images != null && ad.images!.isNotEmpty
-                    ? ad.images![0]
-                    : 'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg',
-              ));
-            }
             notifyListeners();
           } else if (isUserBuyer == false &&
               auth.currentUser!.uid == data['userId']) {
@@ -148,7 +137,7 @@ class AdModel extends ChangeNotifier {
         }
       });
     } catch (error) {
-      print('Error fetching ad data: $error');
+      debugPrint('Error fetching ad data: $error');
     }
   }
 
@@ -170,10 +159,106 @@ class AdModel extends ChangeNotifier {
     return imageURLs;
   }
 
-  void toggleFavourite(int index) {
-    itemData[index].isFav = !itemData[index].isFav;
+  // FAVOURITE
+  Future<void> toggleFavourite(int index) async {
+    adData[index].isFav = !adData[index].isFav;
     notifyListeners();
+    if (adData[index].isFav) {
+      var temp = ListItemModel(
+        adId: adData[index].adId!,
+        rate: adData[index].rates,
+        model: adData[index].model,
+        buyerId: auth.currentUser!.uid,
+        sellerId: adData[index].uId,
+        year: adData[index].year,
+        imageUrl: adData[index].images != null &&
+                adData[index].images!.isNotEmpty
+            ? adData[index].images![0]
+            : 'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg',
+      );
+      itemData.add(temp);
+
+      await addToFavorites(temp);
+      notifyListeners();
+    } else {
+      itemData.removeWhere((element) => element.adId == adData[index].adId);
+      await removeFromFavourites(adData[index].adId!, auth.currentUser!.uid);
+      notifyListeners();
+    }
   }
+
+  Future<void> addToFavorites(ListItemModel item) async {
+    try {
+      if (auth.currentUser != null) {
+        String userId = auth.currentUser!.uid;
+
+        await firebaseFirestore
+            .collection('favoriteItems')
+            .doc(userId + getRandomString())
+            .set({
+          "adId": item.adId,
+          "buyerId": item.buyerId,
+          "sellerId": item.sellerId,
+          "rate": item.rate,
+          "imageUrl": item.imageUrl,
+          "model": item.model,
+          "year": item.year,
+        });
+      }
+    } catch (error) {
+      debugPrint('Error adding to favorites: $error');
+      // Handle error as needed
+    }
+  }
+
+  Future<void> removeFromFavourites(String adId, String buyerId) async {
+    try {
+      var removeFavItem = firebaseFirestore
+          .collection('favoriteItems')
+          .where('adId', isEqualTo: adId)
+          .where('buyerId', isEqualTo: buyerId);
+
+      await removeFavItem.get().then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.delete();
+        }
+      });
+      
+      itemData.removeWhere((element) => element.adId == adId);
+      notifyListeners();
+      getAllAdData();
+      Get.toNamed(Routes.home);
+    } catch (error) {
+      debugPrint('Error adding to favorites: $error');
+      // Handle error as needed
+    }
+  }
+
+  Future<void> getAdsFromFavourites() async {
+  var favRef = firebaseFirestore.collection('favoriteItems');
+  try {
+    itemData.clear();
+    var querySnapshot = await favRef.get();
+    for (var doc in querySnapshot.docs) {
+      var data = doc.data();
+      var buyerId = data['buyerId'];
+      if (buyerId == auth.currentUser!.uid) {
+        var favAds = ListItemModel(
+            adId: data['adId'],
+            rate: data['rate'],
+            model: data['model'],
+            year: data['year'],
+            buyerId: auth.currentUser!.uid,
+            sellerId: data['sellerId'],
+            imageUrl: data['imageUrl']);
+        itemData.add(favAds);
+        notifyListeners();
+      }
+    }
+  } catch (error) {
+    debugPrint('Error fetching ad data: $error');
+  }
+}
 
   // Validation Functions
   String getRandomString() {
@@ -200,9 +285,9 @@ class AdModel extends ChangeNotifier {
     return null;
   }
 
- String? locationValidator(String? location) {
+  String? locationValidator(String? location) {
     if (location == null || location.isEmpty) {
-      return 'Year cannot be empty';
+      return 'Location cannot be empty';
     }
     return null;
   }
