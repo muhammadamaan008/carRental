@@ -5,11 +5,11 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
-import 'package:rental_app/screens/car_details.dart';
-import 'package:rental_app/screens/profile/edit_profile.dart';
+import 'package:rental_app/screens/post/view_post_details.dart';
+import 'package:rental_app/screens/settings/edit_profile.dart';
 import 'package:rental_app/screens/home/home.dart';
-import 'package:rental_app/screens/profile/privacy.dart';
-import 'package:rental_app/screens/profile/terms_and_conditions.dart';
+import 'package:rental_app/screens/settings/privacy.dart';
+import 'package:rental_app/screens/settings/terms_and_conditions.dart';
 import 'package:rental_app/screens/post/ad_view_model.dart';
 import 'package:rental_app/screens/auth/auth_view_model.dart';
 import 'package:rental_app/screens/auth/forgot_password_view.dart';
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         initialRoute: Routes.splash,
         getPages: [
           GetPage(name: Routes.splash, page: () => const Splash(), transition: Transition.zoom),
-          GetPage(name: Routes.login, page: () => const Login(), transition: Transition.zoom),
+          GetPage(name: Routes.login, page: () => const Login()),
           GetPage(name: Routes.signUp, page: () => const SignUp(), transition: Transition.zoom),
           GetPage(name: Routes.forgotPassword, page: () => const ForgotPassword(), transition: Transition.zoom),
           GetPage(name: Routes.home, page: () => const Home(), transition: Transition.zoom),

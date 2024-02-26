@@ -6,14 +6,15 @@ class CustomTextButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String btnText;
   final bool loading;
-  const CustomTextButton({super.key, this.onPressed, required this.btnText, this.loading = false});
+  final Color backgroundColor;
+  const CustomTextButton({super.key, this.onPressed, required this.btnText, this.loading = false, this.backgroundColor = AppConstants.mainColor});
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
       style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all( AppConstants.mainColor)),
+          backgroundColor: MaterialStateProperty.all( backgroundColor)),
       child: loading ?  CircularProgressIndicator(color: Colors.black,strokeWidth: 2.sp): Text(
         btnText.toString(),
         style: TextStyle(

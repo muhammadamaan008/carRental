@@ -3,6 +3,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_app/screens/auth/auth_view_model.dart';
+import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/widgets/text_button.dart';
 import 'package:sizer/sizer.dart';
 
@@ -32,8 +33,7 @@ class Settings extends StatelessWidget {
                     backgroundColor: Colors.grey.shade900,
                     foregroundImage: authObj.userPhotoUrl != null
                         ? NetworkImage(authObj.userPhotoUrl!)
-                        : const NetworkImage(
-                            'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg'),
+                        : const NetworkImage(AppConstants.defaultImageUrl),
                     child: const Center(
                       child: CircularProgressIndicator(),
                     )),

@@ -30,6 +30,8 @@ class _AddPostState extends State<AddPost> {
   String? _dropDownValue;
   String showYear = 'Select Year';
   DateTime? selectedYear;
+  // var uuid = Uuid();
+  String sessionToken = '11223344';
 
   final modelController = TextEditingController();
   final rateController = TextEditingController();
@@ -40,12 +42,51 @@ class _AddPostState extends State<AddPost> {
     height: 2.h,
   );
 
-  bool _submitButtonClicked = false; // Track if submit button was clicked
-
+  bool _submitButtonClicked = false;
+  // List<dynamic> placesList =[];
   @override
   void initState() {
     super.initState();
     adViewModel = Provider.of<AdModel>(context, listen: false);
+    // locationController.addListener(() {
+    //   onChange();
+    // });
+  }
+
+  // void onChange(){
+  //   if(sessionToken == null){
+  //     setState(() {
+  //       sessionToken = uuid.v4();
+
+  //     });
+  //   }
+  //   getSuggestion(locationController.text.toString());
+  // }
+
+  // void getSuggestion(String input) async{
+  //   String placesApiKey = 'AIzaSyBN2UPjz9h7R6W0nQNrXRbDH1tgnN9jRy0';
+  //   String baseUrl = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+  //   String request = '$baseUrl?input=$input&key=$placesApiKey&sessiontoken=$sessionToken';
+
+  //   var response = await http.get(Uri.parse(request));
+
+  // debugPrint(response.body.toString());
+  //   if(response.statusCode == 200){
+  //     setState(() {
+  //       placesList = jsonDecode(response.body.toString())['predictions'];
+  //     });
+  //   }else{
+  //     throw Exception('Failed to load Data');
+  //   }
+  // }
+
+  @override
+  void dispose() {
+    super.dispose();
+    rateController.dispose();
+    yearController.dispose();
+    locationController.dispose();
+    modelController.dispose();
   }
 
   @override
@@ -60,223 +101,223 @@ class _AddPostState extends State<AddPost> {
           body: SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 5.w),
-              child: FormBuilder(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField(
-                      dropdownColor: Colors.grey.shade900,
-                      elevation: 5,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Select some role';
-                        } else {
-                          return null;
-                        }
-                      },
-                      hint: _dropDownValue == null
-                          ? Text(
-                              'Choose Company',
-                              style: TextStyle(color: Colors.grey.shade400),
-                            )
-                          : Text(
-                              _dropDownValue!,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                      isExpanded: true,
-                      iconSize: 30.0,
-                      style: const TextStyle(color: Colors.blue),
-                      items: ['One', 'Two', 'Three'].map(
-                        (val) {
-                          return DropdownMenuItem<String>(
-                            value: val,
-                            child: Text(
-                              val,
-                              style: TextStyle(color: Colors.grey.shade400),
-                            ),
-                          );
-                        },
-                      ).toList(),
-                      onChanged: (val) {
-                        setState(
-                          () {
-                            _dropDownValue = val;
+              child: Consumer<AdModel>(
+                builder:
+                    (BuildContext context, AdModel adModel, Widget? child) {
+                  return FormBuilder(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField(
+                          dropdownColor: Colors.grey.shade900,
+                          elevation: 5,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Select some role';
+                            } else {
+                              return null;
+                            }
                           },
-                        );
-                      },
-                    ),
-                    spacing,
-                    CustomTextFormField(
-                        fieldController: modelController,
-                        isTextObscured: false,
-                        cursorColor: Colors.white,
-                        labelText: 'Model',
-                        onValidate: adViewModel.modelValidator,
-                        hintText: 'e.g Mercedes Benz SClass',
-                        hintTextColor: Colors.white,
-                        textColor: Colors.white),
-                    spacing,
-                    InkWell(
-                      onTap: () async {
-                        await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("Select Year"),
-                              content: SizedBox(
-                                height: 300,
-                                width: 300,
-                                child: YearPicker(
-                                    firstDate:
-                                        DateTime(DateTime.now().year - 20, 1),
-                                    lastDate: DateTime(2025),
-                                    selectedDate: null,
-                                    onChanged: (DateTime dateTime) {
-                                      setState(() {
-                                        selectedYear = dateTime;
-                                        yearController.text =
-                                            selectedYear!.year.toString();
-                                        showYear = "${dateTime.year}";
-                                      });
-                                      Navigator.pop(context);
-                                    }),
-                              ),
+                          hint: _dropDownValue == null
+                              ? Text(
+                                  'Choose Company',
+                                  style: TextStyle(color: Colors.grey.shade400),
+                                )
+                              : Text(
+                                  _dropDownValue!,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                          isExpanded: true,
+                          iconSize: 30.0,
+                          style: const TextStyle(color: Colors.blue),
+                          items: ['Mercedes', 'Suzuki', 'Toyota', 'Bently', 'TATA'].map(
+                            (val) {
+                              return DropdownMenuItem<String>(
+                                value: val,
+                                child: Text(
+                                  val,
+                                  style: TextStyle(color: Colors.grey.shade400),
+                                ),
+                              );
+                            },
+                          ).toList(),
+                          onChanged: (val) {
+                            setState(
+                              () {
+                                _dropDownValue = val;
+                              },
                             );
                           },
-                        );
-                      },
-                      child: CustomTextFormField(
-                          fieldController: yearController,
-                          isTextObscured: false,
-                          cursorColor: Colors.white,
-                          suffixIcon: const Icon(
-                            Icons.edit_calendar,
-                            color: Colors.white,
+                        ),
+                        spacing,
+                        CustomTextFormField(
+                            fieldController: modelController,
+                            isTextObscured: false,
+                            cursorColor: Colors.white,
+                            labelText: 'Model',
+                            onValidate: adViewModel.modelValidator,
+                            hintText: 'e.g Mercedes Benz SClass',
+                            hintTextColor: Colors.white,
+                            textColor: Colors.white),
+                        spacing,
+                        InkWell(
+                          onTap: () async {
+                            await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Select Year"),
+                                  content: SizedBox(
+                                    height: 300,
+                                    width: 300,
+                                    child: YearPicker(
+                                        firstDate: DateTime(
+                                            DateTime.now().year - 20, 1),
+                                        lastDate: DateTime(2025),
+                                        selectedDate: null,
+                                        onChanged: (DateTime dateTime) {
+                                          setState(() {
+                                            selectedYear = dateTime;
+                                            yearController.text =
+                                                selectedYear!.year.toString();
+                                            showYear = "${dateTime.year}";
+                                          });
+                                          Navigator.pop(context);
+                                        }),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: CustomTextFormField(
+                              fieldController: yearController,
+                              isTextObscured: false,
+                              cursorColor: Colors.white,
+                              suffixIcon: const Icon(
+                                Icons.edit_calendar,
+                                color: Colors.white,
+                              ),
+                              labelText: selectedYear != null
+                                  ? selectedYear!.year.toString()
+                                  : 'Model Year ',
+                              enable: false,
+                              onValidate: adViewModel.yearValidator,
+                              textColor: Colors.white),
+                        ),
+                        spacing,
+                        Text(
+                          'Fuel Type :',
+                          style: TextStyle(
+                              color: Colors.grey.shade400, fontSize: 12.sp),
+                        ),
+                        spacing,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomRadioListTile<FuelType?>(
+                              radioValue: FuelType.diesel,
+                              groupValue: _fuelType,
+                              text: "Diesel",
+                              onChange: (value) {
+                                setState(() {
+                                  _fuelType = value;
+                                });
+                              },
+                            ),
+                            CustomRadioListTile<FuelType?>(
+                              radioValue: FuelType.petrol,
+                              groupValue: _fuelType,
+                              text: "Petrol",
+                              onChange: (value) {
+                                setState(() {
+                                  _fuelType = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        if (_submitButtonClicked && (_fuelType == null))
+                          Text('Fuel type cannot be empty',
+                              style: TextStyle(
+                                  color: Colors.red.shade500, fontSize: 10.sp)),
+                        spacing,
+                        Text(
+                          'Transmission :',
+                          style: TextStyle(
+                              color: Colors.grey.shade400, fontSize: 12.sp),
+                        ),
+                        spacing,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomRadioListTile<Transmission?>(
+                              radioValue: Transmission.automatic,
+                              groupValue: _transmission,
+                              text: "Automatic",
+                              onChange: (value) {
+                                setState(() {
+                                  _transmission = value;
+                                });
+                              },
+                            ),
+                            CustomRadioListTile<Transmission?>(
+                              radioValue: Transmission.manual,
+                              groupValue: _transmission,
+                              text: "Manual",
+                              onChange: (value) {
+                                setState(() {
+                                  _transmission = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        if (_submitButtonClicked && (_transmission == null))
+                          Text(
+                            'Transmission type cannot be empty',
+                            style: TextStyle(
+                                color: Colors.red.shade500, fontSize: 10.sp),
                           ),
-                          labelText: selectedYear != null
-                              ? selectedYear!.year.toString()
-                              : 'Model Year ',
-                          enable: false,
-                          onValidate: adViewModel.yearValidator,
-                          textColor: Colors.white),
-                    ),
-                    spacing,
-                    Text(
-                      'Fuel Type :',
-                      style: TextStyle(
-                          color: Colors.grey.shade400, fontSize: 12.sp),
-                    ),
-                    spacing,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomRadioListTile<FuelType?>(
-                          radioValue: FuelType.diesel,
-                          groupValue: _fuelType,
-                          text: "Diesel",
-                          onChange: (value) {
-                            setState(() {
-                              _fuelType = value;
-                            });
-                          },
+                        spacing,
+                        CustomTextFormField(
+                            fieldController: rateController,
+                            isTextObscured: false,
+                            cursorColor: Colors.white,
+                            labelText: 'Rate/Day',
+                            keyboardType: TextInputType.number,
+                            onValidate: adViewModel.rateValidator,
+                            hintText: 'e.g 10000 in PKR',
+                            hintTextColor: Colors.grey,
+                            textColor: Colors.white),
+                        spacing,
+                        CustomTextFormField(
+                            fieldController: locationController,
+                            isTextObscured: false,
+                            cursorColor: Colors.white,
+                            labelText: 'Location',
+                            onValidate: adViewModel.locationValidator,
+                            hintText: 'e.g ABC colony lahore',
+                            hintTextColor: Colors.grey,
+                            textColor: Colors.white),
+                        spacing,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Images',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                adViewModel.getImagesFromGallery();
+                              },
+                              icon: const Icon(Icons.add),
+                            ),
+                          ],
                         ),
-                        CustomRadioListTile<FuelType?>(
-                          radioValue: FuelType.petrol,
-                          groupValue: _fuelType,
-                          text: "Petrol",
-                          onChange: (value) {
-                            setState(() {
-                              _fuelType = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                     if (_submitButtonClicked && (_fuelType == null))
-                       Text(
-                        'Fuel type cannot be empty',
-                         style: TextStyle(color: Colors.red.shade500,fontSize: 10.sp)
-                      ),
-                    spacing,
-                    Text(
-                      'Transmission :',
-                      style: TextStyle(
-                          color: Colors.grey.shade400, fontSize: 12.sp),
-                    ),
-                    spacing,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomRadioListTile<Transmission?>(
-                          radioValue: Transmission.automatic,
-                          groupValue: _transmission,
-                          text: "Automatic",
-                          onChange: (value) {
-                            setState(() {
-                              _transmission = value;
-                            });
-                          },
-                        ),
-                        CustomRadioListTile<Transmission?>(
-                          radioValue: Transmission.manual,
-                          groupValue: _transmission,
-                          text: "Manual",
-                          onChange: (value) {
-                            setState(() {
-                              _transmission = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    if (_submitButtonClicked && (_transmission == null))
-                       Text(
-                        'Transmission type cannot be empty',
-                        style: TextStyle(color: Colors.red.shade500,fontSize: 10.sp),
-                      ),
-                    spacing,
-                    CustomTextFormField(
-                        fieldController: rateController,
-                        isTextObscured: false,
-                        cursorColor: Colors.white,
-                        labelText: 'Rate/Day',
-                        keyboardType: TextInputType.number,
-                        onValidate: adViewModel.rateValidator,
-                        hintText: 'e.g 10000 in PKR',
-                        hintTextColor: Colors.grey,
-                        textColor: Colors.white),
-                    spacing,
-                    CustomTextFormField(
-                        fieldController: locationController,
-                        isTextObscured: false,
-                        cursorColor: Colors.white,
-                        labelText: 'Location',
-                        onValidate: adViewModel.locationValidator,
-                        hintText: 'e.g ABC colony lahore',
-                        hintTextColor: Colors.grey,
-                        textColor: Colors.white),
-                    spacing,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Images',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            adViewModel.getImagesFromGallery();
-                          },
-                          icon: const Icon(Icons.add),
-                        ),
-                      ],
-                    ),
-                    spacing,
-                    Consumer<AdModel>(
-                      builder: (BuildContext context, AdModel adModel,
-                          Widget? child) {
-                        return Container(
+                        spacing,
+                        Container(
                           height: 35.h,
                           width: 100.w,
                           decoration: BoxDecoration(
@@ -309,21 +350,15 @@ class _AddPostState extends State<AddPost> {
                                   child: ClipRRect(
                                       borderRadius:
                                           BorderRadius.circular(10.sp),
-                                      child: Image.file(
-                                          adModel.images![index],
+                                      child: Image.file(adModel.images![index],
                                           fit: BoxFit.contain)),
                                 ),
                               );
                             },
                           ),
-                        );
-                      },
-                    ),
-                    spacing,
-                    Consumer<AdModel>(
-                      builder: (BuildContext context, AdModel adModel,
-                          Widget? child) {
-                        return SizedBox(
+                        ),
+                        spacing,
+                        SizedBox(
                           width: 100.w,
                           height: 6.h,
                           child: CustomTextButton(
@@ -335,31 +370,32 @@ class _AddPostState extends State<AddPost> {
                               });
                               if (_formKey.currentState!.validate()) {
                                 var postAd = Ad(
-                                    fuelType: _fuelType.toString().split('.').last,
-                                    transmission: _transmission.toString().split('.').last,
+                                    fuelType:
+                                        _fuelType.toString().split('.').last,
+                                    transmission: _transmission
+                                        .toString()
+                                        .split('.')
+                                        .last,
                                     model: modelController.text.toString(),
-                                    rates: int.parse(rateController.text.toString()),
-                                    location: locationController.text.toString(),
+                                    rates: int.parse(
+                                        rateController.text.toString()),
+                                    location:
+                                        locationController.text.toString(),
                                     year: selectedYear!.year.toString(),
                                     make: _dropDownValue.toString(),
                                     timeStamp: DateTime.timestamp(),
-                                    uId: FirebaseAuth.instance.currentUser!.uid);
+                                    uId:
+                                        FirebaseAuth.instance.currentUser!.uid);
                                 adViewModel.uploadAdToDatabase(postAd);
                               }
                             },
                           ),
-                        );
-                      },
+                        ),
+                        spacing,
+                      ],
                     ),
-                    spacing,
-                    // Error message for radio buttons shown only when submit button clicked
-                    // if (_submitButtonClicked && (_fuelType == null || _transmission == null))
-                    //   const Text(
-                    //     'Please select fuel type and transmission',
-                    //     style: TextStyle(color: Colors.red),
-                    //   ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),

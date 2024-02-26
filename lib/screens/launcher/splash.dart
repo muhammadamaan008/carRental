@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
@@ -18,12 +19,25 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   late AuthModel authModel;
+
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    authModel = Provider.of<AuthModel>(context,listen: false);
-    // Provider.of<AuthModel>(context, listen: false).checkLoginStatus();
-    // Timer(const Duration(seconds: 3), () => Get.offNamed(Routes.login));
+    authModel = Provider.of<AuthModel>(context, listen: false);
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      if (user != null) {
+        initialiseAndNavigate();
+      } else {
+      await Future.delayed(const Duration(seconds: 1));
+      Get.offNamed(Routes.login);
+      }
+    });
+  }
+
+  void initialiseAndNavigate() async {
+    await authModel.authoriseBuyer();
+    await authModel.getCredentials();
+    Get.offNamed(Routes.home);
   }
 
   @override

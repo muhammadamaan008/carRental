@@ -43,7 +43,6 @@ class _EditProfileState extends State<EditProfile> {
     emailController.dispose();
   }
 
-  // To Be Written in view model
   File? image;
   final picker = ImagePicker();
   Future getImageFromGallery() async {
@@ -93,7 +92,7 @@ class _EditProfileState extends State<EditProfile> {
                             : authModel.userPhotoUrl != null
                                 ? NetworkImage(authModel.userPhotoUrl!)
                                 : const NetworkImage(
-                                    'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg'),
+                                    AppConstants.defaultImageUrl),
                         child: Align(
                           alignment: Alignment.bottomRight,
                           child: CircleAvatar(

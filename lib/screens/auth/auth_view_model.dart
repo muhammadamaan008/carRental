@@ -16,15 +16,6 @@ class AuthModel extends ChangeNotifier {
   late bool isUserBuyer;
   late String? userDisplayName, userEmail, userPhotoUrl;
 
-  AuthModel() {
-    initializeAuthModel();
-  }
-
-  Future<void> initializeAuthModel() async {
-    await authoriseBuyer();
-    // await getCredentials();
-  }
-
   // AUTHORISATION
   Future<void> authoriseBuyer() async {
     try {
@@ -42,12 +33,6 @@ class AuthModel extends ChangeNotifier {
           isUserBuyer = false;
           notifyListeners();
         }
-      } else {
-        CustomSnackBar.showSnackBar('Error',
-            'No documents found with userId: ${_auth.currentUser!.uid.toString()}');
-        isUserBuyer = false;
-        notifyListeners();
-        return;
       }
     } catch (error) {
       CustomSnackBar.commonSnackBar();
@@ -62,11 +47,20 @@ class AuthModel extends ChangeNotifier {
     loading = true;
     notifyListeners();
     try {
+      print('achaaaaaaaa');
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      await _auth.currentUser!.updateDisplayName(name);
+          print('okkkkkkkkkkk');
+      await _auth.currentUser?.updateDisplayName(name);
+      print('wewwwwwwwwwwwwwwwwwww');
       await storeUserInFireStore(
           _auth.currentUser!.uid.toString(), userType, name, email);
+          print('555215220056333.');
+      loading = false;
+      notifyListeners();
+      CustomSnackBar.showSnackBar(
+          "Account Created!", "Please login to avail services");
+      Get.toNamed(Routes.login);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         CustomSnackBar.showSnackBar('Error', 'Email Already in use');
@@ -95,20 +89,19 @@ class AuthModel extends ChangeNotifier {
   Future<void> storeUserInFireStore(
       String userId, String userType, String name, String email) async {
     try {
+      print('doneeeeeeeeeeeeeeee');
       await firebaseFirestore.collection('users').doc(userId).set({
         "userId": userId,
         "userType": userType,
         "email": email,
         "name": name
       });
-      loading = false;
-      notifyListeners();
-      CustomSnackBar.showSnackBar(
-          "Account Created!", "Please login to avail services");
-      Get.offNamed(Routes.login);
+      print('dokieeeeeeeeeeeee');
     } catch (error) {
       loading = false;
+      notifyListeners();
       CustomSnackBar.showSnackBar("Error", error.toString());
+      debugPrint(error.toString());
     }
   }
 
@@ -120,10 +113,15 @@ class AuthModel extends ChangeNotifier {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       await getCredentials();
+      await authoriseBuyer();
       loading = false;
       notifyListeners();
-      Get.offAllNamed(Routes.home);
-      CustomSnackBar.commonSnackBar();
+      if (isUserBuyer) {
+        CustomSnackBar.showSnackBar('Logged In', 'Welcome to buyer dashboard');
+      } else {
+        CustomSnackBar.showSnackBar('Logged In', 'Welcome to seller dashboard');
+      }
+      Get.offNamed(Routes.home);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
         CustomSnackBar.showSnackBar('Error', 'Invalid Credentials');
@@ -163,17 +161,14 @@ class AuthModel extends ChangeNotifier {
   Future<void> sendEmail(String email) async {
     try {
       bool userExists = await isUserExists(email);
-
       if (userExists) {
         await _auth.sendPasswordResetEmail(email: email);
         CustomSnackBar.showSnackBar(
             "Email Sent", "Reset Password & Login Again");
         Get.offNamed(Routes.login);
-      } else {
-        CustomSnackBar.showSnackBar(
-            "Error", "User with this email does not exist.");
       }
-    } catch (error) {
+    } on FirebaseAuthException catch (e) {
+      debugPrint(e.toString());
       CustomSnackBar.commonSnackBar();
     }
   }
@@ -184,7 +179,6 @@ class AuthModel extends ChangeNotifier {
           .collection('users')
           .where('email', isEqualTo: email)
           .get();
-
       return querySnapshot.docs.isNotEmpty;
     } catch (error) {
       CustomSnackBar.commonSnackBar();
@@ -206,31 +200,29 @@ class AuthModel extends ChangeNotifier {
   }
 
   // REDIRECT TO HOME IF USER ALREADY LOGGED IN
-  Future<void> checkLoginStatus() async {
-    try {
-      await authoriseBuyer(); // Wait for authorisation
-      if (_auth.currentUser != null) {
-        Get.offAllNamed(Routes.home);
-      } else {
-        Get.offAllNamed(Routes.login);
-      }
-    } catch (error) {
-      CustomSnackBar.commonSnackBar();
-    }
-  }
+  // Future<void> checkLoginStatus() async {
+  //   try {
+  //     await authoriseBuyer();
+  //     if (_auth.currentUser != null) {
+  //       Get.offAllNamed(Routes.home);
+  //     } else {
+  //       Get.offAllNamed(Routes.login);
+  //     }
+  //   } catch (error) {
+  //     CustomSnackBar.commonSnackBar();
+  //   }
+  // }
 
   Future<String?> uploadImageToStorage(File imageFile) async {
     try {
       loading = true;
       notifyListeners();
 
-      // Generate a unique filename using the user's UID
       String fileName = _auth.currentUser!.uid;
       Reference ref =
           FirebaseStorage.instance.ref().child('profile_images/$fileName');
       UploadTask uploadTask = ref.putFile(imageFile);
 
-      // Wait for the upload task to complete and get the download URL
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
 
@@ -274,15 +266,16 @@ class AuthModel extends ChangeNotifier {
         CustomSnackBar.showSnackBar("Updated", "Sucessfully Updated!");
         Get.offNamed(Routes.home);
       }
-      //id-token-expired
     } on FirebaseAuthException catch (error) {
-      if (error.code == 'id-token-expired') {
-        CustomSnackBar.showSnackBar('Error', 'Login again to update.');
+      debugPrint(error.toString());
+      if (error.code == 'requires-recent-login') {
+        CustomSnackBar.showSnackBar('Updated', 'Login again to see changes.');
         loading = false;
         notifyListeners();
         Get.offAllNamed(Routes.login);
       }
     } catch (e) {
+      debugPrint(e.toString());
       CustomSnackBar.commonSnackBar();
       loading = false;
       notifyListeners();

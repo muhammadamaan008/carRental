@@ -12,6 +12,7 @@ import 'package:rental_app/models/ad_model.dart';
 import 'package:rental_app/models/list_item_model.dart';
 import 'package:rental_app/screens/auth/auth_view_model.dart';
 import 'package:rental_app/service/snack_bar.dart';
+import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/utils/routes.dart';
 
 class AdModel extends ChangeNotifier {
@@ -23,6 +24,7 @@ class AdModel extends ChangeNotifier {
   bool loading = false;
   List<Ad> adData = [];
   List<ListItemModel> itemData = [];
+  List<Ad> originalAdData = [];
 
   // POST AD
   Future<void> uploadAdToDatabase(Ad rentalAd) async {
@@ -64,7 +66,6 @@ class AdModel extends ChangeNotifier {
     try {
       loading = true;
       notifyListeners();
-
       images?.forEach((element) async {
         Reference storageReference = firebaseStorage.ref().child(
             "adPictures/${auth.currentUser!.uid}/$uniqueId/${getRandomString()}");
@@ -78,21 +79,20 @@ class AdModel extends ChangeNotifier {
     }
   }
 
-  // GET IMAGES
   Future<void> getAllAdData() async {
+    adData.clear();
+    originalAdData.clear();
     AuthModel authModel = AuthModel();
 
     await authModel.authoriseBuyer();
-    bool isUserBuyer = authModel.isUserBuyer;
 
     var ref = firebaseFirestore.collection('adCollection');
     try {
-      adData.clear();
       await ref.get().then((querySnapshot) async {
-        await getAdsFromFavourites();
         for (var result in querySnapshot.docs) {
           var data = result.data();
-          if (isUserBuyer) {
+          if (authModel.isUserBuyer) {
+            await getAdsFromFavourites();
             bool favAd = itemData.any((item) => item.adId == data['adId']);
 
             var ad = Ad(
@@ -112,8 +112,10 @@ class AdModel extends ChangeNotifier {
             ad.images = imageURLs;
 
             adData.add(ad);
+            originalAdData.add(Ad.fromMap(ad.toMap()));
+
             notifyListeners();
-          } else if (isUserBuyer == false &&
+          } else if (authModel.isUserBuyer == false &&
               auth.currentUser!.uid == data['userId']) {
             var ad = Ad(
                 adId: data['adId'],
@@ -130,8 +132,9 @@ class AdModel extends ChangeNotifier {
             List<String> imageURLs = await getImagesForAdId(ad.adId!, ad.uId);
             ad.images = imageURLs;
 
-            // Add the created Ad instance to adData list
             adData.add(ad);
+            originalAdData.add(Ad.fromMap(ad.toMap()));
+
             notifyListeners();
           }
         }
@@ -141,6 +144,7 @@ class AdModel extends ChangeNotifier {
     }
   }
 
+  // GET IMAGES
   Future<List<String>> getImagesForAdId(String adId, String uId) async {
     List<String> imageURLs = [];
     try {
@@ -171,10 +175,10 @@ class AdModel extends ChangeNotifier {
         buyerId: auth.currentUser!.uid,
         sellerId: adData[index].uId,
         year: adData[index].year,
-        imageUrl: adData[index].images != null &&
-                adData[index].images!.isNotEmpty
-            ? adData[index].images![0]
-            : 'https://st.depositphotos.com/2934765/53192/v/450/depositphotos_531920820-stock-illustration-photo-available-vector-icon-default.jpg',
+        imageUrl:
+            adData[index].images != null && adData[index].images!.isNotEmpty
+                ? adData[index].images![0]
+                : AppConstants.defaultImageUrl,
       );
       itemData.add(temp);
 
@@ -207,7 +211,6 @@ class AdModel extends ChangeNotifier {
       }
     } catch (error) {
       debugPrint('Error adding to favorites: $error');
-      // Handle error as needed
     }
   }
 
@@ -223,42 +226,110 @@ class AdModel extends ChangeNotifier {
           doc.reference.delete();
         }
       });
-      
+
       itemData.removeWhere((element) => element.adId == adId);
+      for (var ad in adData) {
+        if (ad.adId == adId) {
+          ad.isFav = false;
+        }
+      }
       notifyListeners();
-      getAllAdData();
       Get.toNamed(Routes.home);
     } catch (error) {
       debugPrint('Error adding to favorites: $error');
-      // Handle error as needed
     }
   }
 
   Future<void> getAdsFromFavourites() async {
-  var favRef = firebaseFirestore.collection('favoriteItems');
-  try {
-    itemData.clear();
-    var querySnapshot = await favRef.get();
-    for (var doc in querySnapshot.docs) {
-      var data = doc.data();
-      var buyerId = data['buyerId'];
-      if (buyerId == auth.currentUser!.uid) {
-        var favAds = ListItemModel(
-            adId: data['adId'],
-            rate: data['rate'],
-            model: data['model'],
-            year: data['year'],
-            buyerId: auth.currentUser!.uid,
-            sellerId: data['sellerId'],
-            imageUrl: data['imageUrl']);
-        itemData.add(favAds);
-        notifyListeners();
+    var favRef = firebaseFirestore.collection('favoriteItems');
+    try {
+      itemData.clear();
+      var querySnapshot = await favRef.get();
+      for (var doc in querySnapshot.docs) {
+        var data = doc.data();
+        var buyerId = data['buyerId'];
+        if (buyerId == auth.currentUser!.uid) {
+          var favAds = ListItemModel(
+              adId: data['adId'],
+              rate: data['rate'],
+              model: data['model'],
+              year: data['year'],
+              buyerId: auth.currentUser!.uid,
+              sellerId: data['sellerId'],
+              imageUrl: data['imageUrl']);
+          itemData.add(favAds);
+          notifyListeners();
+        }
+      }
+    } catch (error) {
+      debugPrint('Error fetching ad data: $error');
+    }
+  }
+
+  Future<void> deleteAdById(String adId) async {
+    loading = true;
+    notifyListeners();
+    try {
+      var deletePost = firebaseFirestore
+          .collection('adCollection')
+          .where('adId', isEqualTo: adId);
+
+      var deletePostFromFav = firebaseFirestore
+          .collection('favoriteItems')
+          .where('adId', isEqualTo: adId);
+
+      await deletePost.get().then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.delete();
+        }
+      });
+
+      await deletePostFromFav.get().then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.delete();
+        }
+      });
+
+      itemData.removeWhere((element) => element.adId == adId);
+      adData.removeWhere((element) => element.adId == adId);
+      loading = false;
+      notifyListeners();
+      CustomSnackBar.showSnackBar('Attention', 'Ad deleted successfully');
+      Get.toNamed(Routes.home);
+    } catch (error) {
+      loading = false;
+      notifyListeners();
+      debugPrint('Error adding to favorites: $error');
+    }
+  }
+
+  void moveToDetailScreen(String adId) {
+    for (var ad in adData) {
+      if (ad.adId == adId) {
+        Get.toNamed(Routes.carDetails, arguments: ad);
+        break;
       }
     }
-  } catch (error) {
-    debugPrint('Error fetching ad data: $error');
+    return;
   }
-}
+
+  // SEARCH
+  void searchPerson(String charEntered) {
+    List<Ad> filteredList = [];
+
+    if (charEntered.isEmpty) {
+      filteredList = originalAdData;
+    } else {
+      filteredList = originalAdData
+          .where((ad) =>
+              ad.model.toLowerCase().contains(charEntered.toLowerCase()) ||
+              ad.make.toLowerCase().contains(charEntered.toLowerCase()))
+          .toList();
+    }
+
+    adData = filteredList;
+    notifyListeners();
+  }
 
   // Validation Functions
   String getRandomString() {

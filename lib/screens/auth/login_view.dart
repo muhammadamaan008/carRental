@@ -3,7 +3,6 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:rental_app/screens/auth/auth_view_model.dart';
-import 'package:rental_app/service/snack_bar.dart';
 import 'package:rental_app/utils/constants.dart';
 import 'package:rental_app/utils/routes.dart';
 import 'package:rental_app/widgets/app_bar.dart';
@@ -122,8 +121,6 @@ class _LoginState extends State<Login> {
                                   loading: obj.loading,
                                   onPressed: () {
                                     if (formKey.currentState!.validate()) {
-                                      CustomSnackBar.showSnackBar('Please wait',
-                                          'We are checking details.');
                                       authModel.loginUser(
                                           emailController.value.text.toString(),
                                           passwordController.value.text
