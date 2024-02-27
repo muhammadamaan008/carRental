@@ -55,15 +55,11 @@ class AuthModel extends ChangeNotifier {
     loading = true;
     notifyListeners();
     try {
-      print('achaaaaaaaa');
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      print('okkkkkkkkkkk');
       await _auth.currentUser?.updateDisplayName(name);
-      print('wewwwwwwwwwwwwwwwwwww');
       await storeUserInFireStore(
           _auth.currentUser!.uid.toString(), userType, name, email);
-      print('555215220056333.');
       loading = false;
       notifyListeners();
       CustomSnackBar.showSnackBar(
@@ -97,14 +93,12 @@ class AuthModel extends ChangeNotifier {
   Future<void> storeUserInFireStore(
       String userId, String userType, String name, String email) async {
     try {
-      print('doneeeeeeeeeeeeeeee');
       await firebaseFirestore.collection('users').doc(userId).set({
         "userId": userId,
         "userType": userType,
         "email": email,
         "name": name
       });
-      print('dokieeeeeeeeeeeee');
     } catch (error) {
       loading = false;
       notifyListeners();
