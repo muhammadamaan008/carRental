@@ -7,13 +7,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color backgroundColor;
   final Color? foregroundColor;
   final bool backArrow;
+  final PreferredSizeWidget? bottom;
   const CustomAppBar(
       {super.key,
       required this.title,
       required this.centerTitle,
        this.backArrow = true,
       required this.backgroundColor,
-      this.foregroundColor});
+      this.foregroundColor,
+      this.bottom});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -26,6 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       foregroundColor: foregroundColor,
       centerTitle: centerTitle,
       automaticallyImplyLeading: backArrow,
+      bottom: bottom,
     );
   }
 }

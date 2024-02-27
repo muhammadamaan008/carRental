@@ -33,9 +33,9 @@ class Settings extends StatelessWidget {
                     backgroundColor: Colors.grey.shade900,
                     foregroundImage: authObj.userPhotoUrl != null
                         ? NetworkImage(authObj.userPhotoUrl!)
-                        : const NetworkImage(AppConstants.defaultImageUrl),
+                        : const NetworkImage(AppConstants.userDefaultImageUrl),
                     child: const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(color: AppConstants.mainColor,),
                     )),
                 spacing,
                 Text(

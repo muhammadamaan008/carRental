@@ -300,7 +300,7 @@ class _CarDetailsState extends State<CarDetails> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 2.w),
+                          padding: EdgeInsets.only(left: 2.w, right: 2.w, bottom: 1.h),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

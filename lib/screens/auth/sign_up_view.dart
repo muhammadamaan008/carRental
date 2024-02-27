@@ -27,7 +27,7 @@ class _SignUpState extends State<SignUp> {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  SingingCharacter? _character;
+  SingingCharacter? _character = SingingCharacter.buyer;
   final Widget spacing = SizedBox(
     height: 2.h,
   );

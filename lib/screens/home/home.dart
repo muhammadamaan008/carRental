@@ -47,38 +47,53 @@ class _HomeState extends State<Home> {
               foregroundColor: Colors.white,
               backArrow: false,
             ),
-            body:
-                // FutureBuilder(
-                //   future: authModel.authoriseBuyer(),
-                //   builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-                //     if (snapshot.connectionState == ConnectionState.waiting) {
-                //       return SizedBox(
-                //         width: 100.w,
-                //         height: 100.h,
-                //         child: const Column(
-                //           mainAxisAlignment: MainAxisAlignment.center,
-                //           crossAxisAlignment: CrossAxisAlignment.center,
-                //           children: [
-                //             CircularProgressIndicator(color: Colors.red),
-                //             Text(
-                //               'Loading Ads',
-                //               style: TextStyle(color: Colors.white),
-                //             )
-                //           ],
-                //         ),
-                //       );
-                //     } else {
-                //       return
+            body: Column(
+              children: [
                 currentIndex == 0
-                    ? const HomeView()
-                    : currentIndex == 2
-                        ? const Video()
-                        : currentIndex == 3
-                            ? const Settings()
-                            : currentIndex == 1 && value.isUserBuyer
-                                ? const Favourites()
-                                : const AddPost(),
-            //     ),
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 1.w, vertical: 1.h),
+                        child: SizedBox(
+                          height: 6.h,
+                          child: TextField(
+                            onChanged: (String enterChar) {
+                              adModel.searchPerson(enterChar);
+                            },
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 10.sp),
+                            cursorColor: Colors.white,
+                            decoration: InputDecoration(
+                              label: const Text('Search'),
+                              labelStyle: const TextStyle(color: Colors.white),
+                              suffixIcon: const Icon(Icons.search),
+                              suffixIconColor: Colors.white,
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(50),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1)),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(50),
+                                  borderSide: const BorderSide(
+                                      color: Colors.grey, width: 1)),
+                              hintStyle: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+                Expanded(
+                  child: currentIndex == 0
+                      ? const HomeView()
+                      : currentIndex == 2
+                          ? const Video()
+                          : currentIndex == 3
+                              ? const Settings()
+                              : currentIndex == 1 && value.isUserBuyer
+                                  ? const Favourites()
+                                  : const AddPost(),
+                ),
+              ],
+            ),
             bottomNavigationBar: GNav(
               onTabChange: (index) {
                 setState(() {

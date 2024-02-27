@@ -29,8 +29,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> initializeData() async {
-    await adViewModel.getAllAdData();
+
     if (mounted) {
+          await adViewModel.getAllAdData();
       setState(() {
         isLoading = false;
       });
@@ -70,37 +71,6 @@ class _HomeViewState extends State<HomeView> {
                     )
                   : Column(
                       children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 1.w, vertical: 1.h),
-                          child: SizedBox(
-                            height: 6.h,
-                            child: TextField(
-                              onChanged: (String enterChar) {
-                                adViewModel.searchPerson(enterChar);
-                              },
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 10.sp),
-                              cursorColor: Colors.white,
-                              decoration: InputDecoration(
-                                label: const Text('Search'),
-                                labelStyle:
-                                    const TextStyle(color: Colors.white),
-                                suffixIcon: const Icon(Icons.search),
-                                suffixIconColor: Colors.white,
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(50),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 1)),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(50),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 1)),
-                                hintStyle: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ),
                         Flexible(
                           child: GridView.builder(
                             itemCount: value.adData.length,

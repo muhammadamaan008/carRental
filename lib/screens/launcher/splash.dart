@@ -24,21 +24,47 @@ class _SplashState extends State<Splash> {
   void initState(){
     super.initState();
     authModel = Provider.of<AuthModel>(context, listen: false);
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-      if (user != null) {
-        initialiseAndNavigate();
-      } else {
-      await Future.delayed(const Duration(seconds: 1));
-      Get.offNamed(Routes.login);
-      }
-    });
+
+
+    // Check if the user is already authenticated
+    if (authModel.isUserAuthenticated()) {
+      // If authenticated, directly navigate to the desired screen
+      navigateToDesiredScreen();
+    } else {
+      // If not authenticated, listen to authentication state changes
+      FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+        if (user != null) {
+          // If user is logged in, navigate to the desired screen
+          navigateToDesiredScreen();
+        } else {
+          // If user is not logged in, navigate to the login screen
+          await Future.delayed(const Duration(seconds: 1));
+          Get.offNamed(Routes.login);
+        }
+      });
+    }
   }
 
-  void initialiseAndNavigate() async {
+  void navigateToDesiredScreen() async {
     await authModel.authoriseBuyer();
     await authModel.getCredentials();
     Get.offNamed(Routes.home);
   }
+    // FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+    //   if (user != null) {
+    //     initialiseAndNavigate();
+    //   } else {
+    //   await Future.delayed(const Duration(seconds: 1));
+    //   Get.offNamed(Routes.login);
+    //   }
+    // });
+  //}
+
+  // void initialiseAndNavigate() async {
+  //   await authModel.authoriseBuyer();
+  //   await authModel.getCredentials();
+  //   Get.offNamed(Routes.home);
+  // }
 
   @override
   Widget build(BuildContext context) {

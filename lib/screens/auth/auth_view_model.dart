@@ -16,6 +16,14 @@ class AuthModel extends ChangeNotifier {
   late bool isUserBuyer;
   late String? userDisplayName, userEmail, userPhotoUrl;
 
+  bool isUserAuthenticated() {
+    // Access the current user from Firebase Authentication
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Return true if user is not null (i.e., user is authenticated), otherwise return false
+    return user != null;
+  }
+
   // AUTHORISATION
   Future<void> authoriseBuyer() async {
     try {
@@ -50,12 +58,12 @@ class AuthModel extends ChangeNotifier {
       print('achaaaaaaaa');
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-          print('okkkkkkkkkkk');
+      print('okkkkkkkkkkk');
       await _auth.currentUser?.updateDisplayName(name);
       print('wewwwwwwwwwwwwwwwwwww');
       await storeUserInFireStore(
           _auth.currentUser!.uid.toString(), userType, name, email);
-          print('555215220056333.');
+      print('555215220056333.');
       loading = false;
       notifyListeners();
       CustomSnackBar.showSnackBar(
@@ -160,11 +168,15 @@ class AuthModel extends ChangeNotifier {
   // Forgot Password
   Future<void> sendEmail(String email) async {
     try {
+      loading = true;
+      notifyListeners();
       bool userExists = await isUserExists(email);
       if (userExists) {
         await _auth.sendPasswordResetEmail(email: email);
         CustomSnackBar.showSnackBar(
             "Email Sent", "Reset Password & Login Again");
+        loading = false;
+        notifyListeners();
         Get.offNamed(Routes.login);
       }
     } on FirebaseAuthException catch (e) {

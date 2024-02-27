@@ -92,7 +92,7 @@ class _EditProfileState extends State<EditProfile> {
                             : authModel.userPhotoUrl != null
                                 ? NetworkImage(authModel.userPhotoUrl!)
                                 : const NetworkImage(
-                                    AppConstants.defaultImageUrl),
+                                    AppConstants.userDefaultImageUrl),
                         child: Align(
                           alignment: Alignment.bottomRight,
                           child: CircleAvatar(

@@ -74,16 +74,21 @@ class ForgotPassword extends StatelessWidget {
                           underlineColor: Colors.white,
                         ),
                         spacing,
-                        SizedBox(
-                          width: 100.w,
-                          child: CustomTextButton(
-                            btnText: 'Get Link',
-                            onPressed: () {
-                              if (formKey.currentState!.validate()) {
-                                authModel.sendEmail(forgotFieldController.value.text.toString());
-                              }
-                            },
-                          ),
+                        Consumer<AuthModel>(
+                          builder: (BuildContext context,AuthModel value, Widget? child) { 
+                            return SizedBox(
+                            width: 100.w,
+                            child: CustomTextButton(
+                              btnText: 'Get Link',
+                              loading: value.loading,
+                              onPressed: () {
+                                if (formKey.currentState!.validate()) {
+                                  authModel.sendEmail(forgotFieldController.value.text.toString());
+                                }
+                              },
+                            ),
+                          );
+                           },
                         )
                       ],
                     ),

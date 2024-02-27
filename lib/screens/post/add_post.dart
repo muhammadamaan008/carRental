@@ -387,6 +387,7 @@ class _AddPostState extends State<AddPost> {
                                     uId:
                                         FirebaseAuth.instance.currentUser!.uid);
                                 adViewModel.uploadAdToDatabase(postAd);
+                                adViewModel.images?.clear();
                               }
                             },
                           ),
