@@ -79,41 +79,23 @@ class AdModel extends ChangeNotifier {
     }
   }
 
- Future<void> getAllAdData() async {
-  adData.clear();
-  originalAdData.clear();
-  AuthModel authModel = AuthModel();
+  Future<void> getAllAdData() async {
+    adData.clear();
+    originalAdData.clear();
+    notifyListeners();
+    AuthModel authModel = AuthModel();
 
-  await authModel.authoriseBuyer();
+    await authModel.authoriseBuyer();
 
-  var ref = firebaseFirestore.collection('adCollection');
-  try {
-    await ref.get().then((querySnapshot) async {
-      for (var result in querySnapshot.docs) {
-        var data = result.data();
-        bool isUserBuyer = authModel.isUserBuyer;
+    var ref = firebaseFirestore.collection('adCollection');
+    try {
+      await ref.get().then((querySnapshot) async {
+        for (var result in querySnapshot.docs) {
+          var data = result.data();
+          bool isUserBuyer = authModel.isUserBuyer;
 
-        if (isUserBuyer == true) {
-          bool favAd = itemData.any((item) => item.adId == data['adId']);
-          var ad = Ad(
-            adId: data['adId'],
-            make: data['make'],
-            model: data['model'],
-            year: data['year'],
-            transmission: data['transmission'],
-            fuelType: data['fuelType'],
-            timeStamp: data['timeStamp'].toDate(),
-            uId: data['userId'],
-            rates: data['rates'],
-            location: data['location'],
-            isFav: favAd,
-          );
-          List<String> imageURLs = await getImagesForAdId(ad.adId!, ad.uId);
-          ad.images = imageURLs;
-          adData.add(ad);
-          originalAdData.add(Ad.fromMap(ad.toMap()));
-        } else {
-          if (auth.currentUser!.uid == data['userId']) {
+          if (isUserBuyer == true) {
+            bool favAd = itemData.any((item) => item.adId == data['adId']);
             var ad = Ad(
               adId: data['adId'],
               make: data['make'],
@@ -125,22 +107,39 @@ class AdModel extends ChangeNotifier {
               uId: data['userId'],
               rates: data['rates'],
               location: data['location'],
+              isFav: favAd,
             );
             List<String> imageURLs = await getImagesForAdId(ad.adId!, ad.uId);
             ad.images = imageURLs;
             adData.add(ad);
             originalAdData.add(Ad.fromMap(ad.toMap()));
+          } else {
+            if (auth.currentUser!.uid == data['userId']) {
+              var ad = Ad(
+                adId: data['adId'],
+                make: data['make'],
+                model: data['model'],
+                year: data['year'],
+                transmission: data['transmission'],
+                fuelType: data['fuelType'],
+                timeStamp: data['timeStamp'].toDate(),
+                uId: data['userId'],
+                rates: data['rates'],
+                location: data['location'],
+              );
+              List<String> imageURLs = await getImagesForAdId(ad.adId!, ad.uId);
+              ad.images = imageURLs;
+              adData.add(ad);
+              originalAdData.add(Ad.fromMap(ad.toMap()));
+            }
           }
         }
-      }
-    });
-  } catch (error) {
-    debugPrint('Error fetching ad data: $error');
+      });
+    } catch (error) {
+      debugPrint('Error fetching ad data: $error');
+    }
+    notifyListeners();
   }
-  notifyListeners();
-}
-
-
 
   // GET IMAGES
   Future<List<String>> getImagesForAdId(String adId, String uId) async {
@@ -312,26 +311,26 @@ class AdModel extends ChangeNotifier {
   }
 
   // SEARCH
-void searchPerson(String charEntered) {
-  List<Ad> filteredList = [];
+  void searchPerson(String charEntered) {
+    List<Ad> filteredList = [];
 
-  if (charEntered.isEmpty) {
-    filteredList = originalAdData;
-  } else {
-    filteredList = originalAdData.where((ad) {
-      final lowerCaseEntered = charEntered.toLowerCase();
-      final makeContains = ad.make.toLowerCase().contains(lowerCaseEntered);
-      final modelContains = ad.model.toLowerCase().contains(lowerCaseEntered);
-      final isNumeric = double.tryParse(charEntered) != null;
-      final numberContains = ad.make.contains(charEntered) || ad.model.contains(charEntered);
-      return makeContains || modelContains || (isNumeric && numberContains);
-    }).toList();
+    if (charEntered.isEmpty) {
+      filteredList = originalAdData;
+    } else {
+      filteredList = originalAdData.where((ad) {
+        final lowerCaseEntered = charEntered.toLowerCase();
+        final makeContains = ad.make.toLowerCase().contains(lowerCaseEntered);
+        final modelContains = ad.model.toLowerCase().contains(lowerCaseEntered);
+        final isNumeric = double.tryParse(charEntered) != null;
+        final numberContains =
+            ad.make.contains(charEntered) || ad.model.contains(charEntered);
+        return makeContains || modelContains || (isNumeric && numberContains);
+      }).toList();
+    }
+
+    adData = filteredList;
+    notifyListeners();
   }
-
-  adData = filteredList;
-  notifyListeners();
-}
-
 
   // Validation Functions
   String getRandomString() {

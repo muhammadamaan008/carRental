@@ -300,7 +300,8 @@ class _CarDetailsState extends State<CarDetails> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.only(left: 2.w, right: 2.w, bottom: 1.h),
+                          padding: EdgeInsets.only(
+                              left: 2.w, right: 2.w, bottom: 1.h),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -343,18 +344,16 @@ class _CarDetailsState extends State<CarDetails> {
                         ),
                         height: 6.h,
                         child: value.loading
-                            ?  Center(
+                            ? Center(
                                 child: CircularProgressIndicator(
-                                  color: Colors.black,
-                                  strokeWidth: 2.sp
-                                ),
+                                    color: Colors.black, strokeWidth: 2.sp),
                               )
                             : Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Padding(
-                                    padding:  EdgeInsets.only(left: 2.w),
+                                    padding: EdgeInsets.only(left: 2.w),
                                     child: Text('${ad.rates} PKR/a day',
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
@@ -366,9 +365,11 @@ class _CarDetailsState extends State<CarDetails> {
                                     width: 2.w,
                                   ),
                                   Padding(
-                                    padding:  EdgeInsets.only(right: 2.w),
+                                    padding: EdgeInsets.only(right: 2.w),
                                     child: Text(
-                                        authModel.isUserBuyer ? 'Book' : 'Delete',
+                                        authModel.isUserBuyer
+                                            ? 'Book'
+                                            : 'Delete',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14.sp,
